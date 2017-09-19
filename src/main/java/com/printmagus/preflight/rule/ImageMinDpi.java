@@ -18,15 +18,18 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
-public class ImageMinDpi extends AbstractRuleInterface {
+public class ImageMinDpi extends AbstractRuleInterface
+{
     private Integer min;
 
-    public ImageMinDpi(Integer min) {
+    public ImageMinDpi(Integer min)
+    {
         this.min = min;
     }
 
     @Override
-    protected void doValidate(PDDocument document, List<Violation> violations) {
+    protected void doValidate(PDDocument document, List<Violation> violations)
+    {
         try {
             ImageDpi printer = new ImageDpi(document, violations);
 
@@ -35,20 +38,23 @@ public class ImageMinDpi extends AbstractRuleInterface {
             }
         } catch (IOException e) {
             violations.add(
-                    new Violation(
-                            this.getClass().getSimpleName(),
-                            String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
-                            null
-                    )
+                new Violation(
+                    this.getClass()
+                        .getSimpleName(),
+                    String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
+                    null
+                )
             );
         }
     }
 
-    public class ImageDpi extends PDFStreamEngine {
+    public class ImageDpi extends PDFStreamEngine
+    {
         PDDocument document;
         List<Violation> violations;
 
-        ImageDpi(PDDocument document, List<Violation> violations) throws IOException {
+        ImageDpi(PDDocument document, List<Violation> violations) throws IOException
+        {
             this.document = document;
             this.violations = violations;
 
@@ -61,12 +67,14 @@ public class ImageMinDpi extends AbstractRuleInterface {
         }
 
         @Override
-        protected void processOperator(Operator operator, List<COSBase> operands) throws IOException {
-            if (operator.getName().equals("Do")) {
-                COSName objectName = (COSName) operands.get(0);
+        protected void processOperator(Operator operator, List<COSBase> operands) throws IOException
+        {
+            if (operator.getName()
+                        .equals("Do")) {
+                COSName objectName = (COSName)operands.get(0);
                 PDXObject xobject = getResources().getXObject(objectName);
                 if (xobject instanceof PDImageXObject) {
-                    PDImageXObject image = (PDImageXObject) xobject;
+                    PDImageXObject image = (PDImageXObject)xobject;
                     Matrix ctm = getGraphicsState().getCurrentTransformationMatrix();
 
                     Float DpiX = image.getWidth() * 72 / ctm.getScaleX();
@@ -82,19 +90,22 @@ public class ImageMinDpi extends AbstractRuleInterface {
                         context.put("dpiY", DpiY);
 
                         Violation violation = new Violation(
-                                ImageMinDpi.class.getSimpleName(),
-                                message,
-                                document.getPages().indexOf(getCurrentPage()),
-                                context
+                            ImageMinDpi.class.getSimpleName(),
+                            message,
+                            document.getPages()
+                                    .indexOf(getCurrentPage()),
+                            context
                         );
 
                         violations.add(violation);
                     }
 
 
-                } else if (xobject instanceof PDFormXObject) {
-                    PDFormXObject form = (PDFormXObject) xobject;
-                    showForm(form);
+                } else {
+                    if (xobject instanceof PDFormXObject) {
+                        PDFormXObject form = (PDFormXObject)xobject;
+                        showForm(form);
+                    }
                 }
             } else {
                 super.processOperator(operator, operands);

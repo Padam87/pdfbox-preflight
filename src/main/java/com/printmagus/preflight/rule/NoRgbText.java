@@ -22,8 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-public class NoRgbText extends AbstractRuleInterface {
-    protected void doValidate(PDDocument document, List<Violation> violations) {
+public class NoRgbText extends AbstractRuleInterface
+{
+    protected void doValidate(PDDocument document, List<Violation> violations)
+    {
         try {
             PrintTextColors s = new PrintTextColors(document, violations);
 
@@ -32,11 +34,12 @@ public class NoRgbText extends AbstractRuleInterface {
             }
         } catch (IOException e) {
             violations.add(
-                    new Violation(
-                            this.getClass().getSimpleName(),
-                            String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
-                            null
-                    )
+                new Violation(
+                    this.getClass()
+                        .getSimpleName(),
+                    String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
+                    null
+                )
             );
         }
     }
@@ -92,8 +95,10 @@ public class NoRgbText extends AbstractRuleInterface {
         }
 
         @Override
-        protected void showGlyph(Matrix textRenderingMatrix, PDFont font, int code, String unicode,
-                                 Vector displacement) throws IOException
+        protected void showGlyph(
+            Matrix textRenderingMatrix, PDFont font, int code, String unicode,
+            Vector displacement
+        ) throws IOException
         {
             super.showGlyph(textRenderingMatrix, font, code, unicode, displacement);
 
@@ -105,7 +110,7 @@ public class NoRgbText extends AbstractRuleInterface {
             }
 
             if (currentStrokingColorSpace != state.getStrokingColorSpace()
-                    || currentNonStrokingColorSpace != state.getNonStrokingColorSpace()) {
+                || currentNonStrokingColorSpace != state.getNonStrokingColorSpace()) {
                 processColorSpaceText();
 
                 currentStrokingColorSpace = state.getStrokingColorSpace();
@@ -116,16 +121,23 @@ public class NoRgbText extends AbstractRuleInterface {
             currentText.append(unicode);
         }
 
-        private void processColorSpaceText() {
+        private void processColorSpaceText()
+        {
             if (this.isRgbColorSpace(currentStrokingColorSpace) || this.isRgbColorSpace(currentNonStrokingColorSpace)) {
                 HashMap<String, Object> context = new HashMap<String, Object>();
 
                 context.put("text", currentText);
                 context.put("graphicsState", getGraphicsState().clone());
 
-                String message = String .format("RGB text found: %s", currentText);
+                String message = String.format("RGB text found: %s", currentText);
 
-                Violation violation = new Violation(NoRgbText.class.getSimpleName(), message, document.getPages().indexOf(getCurrentPage()), context);
+                Violation violation = new Violation(
+                    NoRgbText.class.getSimpleName(),
+                    message,
+                    document.getPages()
+                            .indexOf(getCurrentPage()),
+                    context
+                );
 
                 violations.add(violation);
             }

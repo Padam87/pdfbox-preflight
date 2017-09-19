@@ -13,16 +13,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-public class NoRgbImages extends AbstractRuleInterface {
+public class NoRgbImages extends AbstractRuleInterface
+{
     @Override
-    protected void doValidate(PDDocument document, List<Violation> violations) {
+    protected void doValidate(PDDocument document, List<Violation> violations)
+    {
         try {
             for (PDPage page : document.getPages()) {
                 PDResources resources = page.getResources();
 
                 for (COSName name : resources.getXObjectNames()) {
                     if (resources.isImageXObject(name)) {
-                        PDImageXObject image = (PDImageXObject) resources.getXObject(name);
+                        PDImageXObject image = (PDImageXObject)resources.getXObject(name);
 
                         if (isRgbColorSpace(image.getColorSpace())) {
                             String message = "RGB image found.";
@@ -31,18 +33,25 @@ public class NoRgbImages extends AbstractRuleInterface {
 
                             context.put("image", image);
 
-                            Violation violation = new Violation(NoRgbText.class.getSimpleName(), message, document.getPages().indexOf(page), context);
+                            Violation violation = new Violation(
+                                NoRgbText.class.getSimpleName(),
+                                message,
+                                document.getPages()
+                                        .indexOf(page),
+                                context
+                            );
                         }
                     }
                 }
             }
         } catch (IOException e) {
             violations.add(
-                    new Violation(
-                            this.getClass().getSimpleName(),
-                            String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
-                            null
-                    )
+                new Violation(
+                    this.getClass()
+                        .getSimpleName(),
+                    String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
+                    null
+                )
             );
         }
     }

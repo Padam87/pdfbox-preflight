@@ -21,7 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-public class MaxInkDensityText extends AbstractRuleInterface {
+public class MaxInkDensityText extends AbstractRuleInterface
+{
     private Integer maxDensity;
 
     public MaxInkDensityText(Integer maxDensity)
@@ -29,7 +30,8 @@ public class MaxInkDensityText extends AbstractRuleInterface {
         this.maxDensity = maxDensity;
     }
 
-    protected void doValidate(PDDocument document, List<Violation> violations) {
+    protected void doValidate(PDDocument document, List<Violation> violations)
+    {
         try {
             InkDensity s = new InkDensity(document, violations);
 
@@ -38,11 +40,12 @@ public class MaxInkDensityText extends AbstractRuleInterface {
             }
         } catch (IOException e) {
             violations.add(
-                    new Violation(
-                            this.getClass().getSimpleName(),
-                            String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
-                            null
-                    )
+                new Violation(
+                    this.getClass()
+                        .getSimpleName(),
+                    String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
+                    null
+                )
             );
         }
     }
@@ -98,8 +101,10 @@ public class MaxInkDensityText extends AbstractRuleInterface {
         }
 
         @Override
-        protected void showGlyph(Matrix textRenderingMatrix, PDFont font, int code, String unicode,
-                                 Vector displacement) throws IOException
+        protected void showGlyph(
+            Matrix textRenderingMatrix, PDFont font, int code, String unicode,
+            Vector displacement
+        ) throws IOException
         {
             super.showGlyph(textRenderingMatrix, font, code, unicode, displacement);
 
@@ -109,9 +114,11 @@ public class MaxInkDensityText extends AbstractRuleInterface {
             processColor(state.getNonStrokingColor());
         }
 
-        private void processColor(PDColor color) throws IOException {
+        private void processColor(PDColor color) throws IOException
+        {
             Float density = 0f;
-            for (Float component : color.toCOSArray().toFloatArray()) {
+            for (Float component : color.toCOSArray()
+                                        .toFloatArray()) {
                 density += component * 100;
             }
 
@@ -125,7 +132,8 @@ public class MaxInkDensityText extends AbstractRuleInterface {
                 Violation violation = new Violation(
                     MaxInkDensityText.class.getSimpleName(),
                     message,
-                    document.getPages().indexOf(getCurrentPage()),
+                    document.getPages()
+                            .indexOf(getCurrentPage()),
                     context
                 );
 
