@@ -28,7 +28,7 @@ public class Application
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            File file = new File("src/main/resources/test2.pdf");
+            File file = new File("src/main/resources/hotel.pdf");
             PDDocument document = PDDocument.load(file);
 
             Preflight preflight = new Preflight();
@@ -41,6 +41,7 @@ public class Application
             preflight.addRule(new BoxNesting());
             preflight.addRule(new DocumentVersion());
             preflight.addRule(new DocumentIdExists());
+            preflight.addRule(new OutputIntent());
 
             List<Violation> violations = preflight.validate(document);
 
