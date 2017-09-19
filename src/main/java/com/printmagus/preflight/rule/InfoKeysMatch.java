@@ -38,12 +38,25 @@ public class InfoKeysMatch extends AbstractRule
                 );
 
                 violations.add(violation);
-            }
+            } else {
+                String value = document.getDocumentInformation().getCOSObject().getString(entry.getKey());
 
-            String value = document.getDocumentInformation().getCOSObject().getString(entry.getKey());
+                if (!entry.getValue().matcher(value).matches()) {
+                    HashMap<String, Object> context = new HashMap<String, Object>();
 
-            if (!entry.getValue().matcher(value).matches()) {
-                System.out.println(value);
+                    context.put("value", value);
+                    context.put("key", entry.getKey());
+                    context.put("pattern", entry.getValue());
+
+                    Violation violation = new Violation(
+                        this.getClass().getSimpleName(),
+                        "Invalid info dict entry.",
+                        null,
+                        context
+                    );
+
+                    violations.add(violation);
+                }
             }
         }
     }
