@@ -21,6 +21,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * This rule is not a part of any standard, but it is vital.
+ *
+ * Even the best offset printers have a problem with an ink density over 320.
+ * The higher the density, the more likely it will spill.
+ *
+ * Callas technote reference: -
+ */
 public class MaxInkDensityText extends AbstractRuleInterface
 {
     private Integer maxDensity;

@@ -5,6 +5,15 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 
 import java.util.*;
 
+/**
+ * This rule is not a part of any standard, it should be only used on a per-document basis.
+ *
+ * The page count should be the 1st thing you check before print.
+ * Customers sometimes try order a 32 page magazine with a 30 page pdf,
+ * later realizing they uploaded the wrong material :)
+ *
+ * Callas technote reference: -
+ */
 public class PageCount extends AbstractRuleInterface
 {
     private final Integer min;
@@ -24,8 +33,7 @@ public class PageCount extends AbstractRuleInterface
                 min, max, document.getNumberOfPages()
             );
 
-            violations.add(new Violation(this.getClass()
-                                             .getSimpleName(), message, null));
+            violations.add(new Violation(this.getClass().getSimpleName(), message, null));
         }
     }
 }

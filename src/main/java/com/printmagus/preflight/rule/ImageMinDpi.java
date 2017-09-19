@@ -18,6 +18,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Not a part of any standard, but very important for QA.
+ *
+ * Images under a certain DPI (~300) can appear crude on paper.
+ * Customers should be warned about this.
+ *
+ * Callas technote reference: -
+ */
 public class ImageMinDpi extends AbstractRuleInterface
 {
     private Integer min;

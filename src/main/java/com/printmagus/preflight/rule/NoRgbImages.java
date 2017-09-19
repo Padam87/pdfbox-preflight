@@ -13,6 +13,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The only color space that is not allowed in a PDF/X-3 file is plain RGB (DeviceRGB).
+ *
+ * Callas technote reference:
+ * - Uses DeviceRGB [PDF/X-1a]
+ * - Only DeviceCMYK and spot colors allowed [PDF/X-3]
+ */
 public class NoRgbImages extends AbstractRuleInterface
 {
     @Override
