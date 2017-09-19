@@ -39,6 +39,7 @@ public class Application
             preflight.addRule(new ImageMinDpi(300));
             preflight.addRule(new MaxInkDensityText(320));
             preflight.addRule(new BoxNesting());
+            preflight.addRule(new DocumentVersion());
 
             List<Violation> violations = preflight.validate(document);
 
