@@ -67,6 +67,7 @@ public class Application
             preflight.addRule(new NoTransferCurves());
             preflight.addRule(new AllowedHalftoneTypes(Arrays.asList(1, 5)));
             preflight.addRule(new NoPostScripts());
+            preflight.addRule(new NoActions());
 
             List<Violation> violations = preflight.validate(document);
 
