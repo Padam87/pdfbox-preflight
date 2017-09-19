@@ -65,6 +65,7 @@ public class Application
             preflight.addRule(new NoSeparation());
             preflight.addRule(new OnlyEmbeddedFonts());
             preflight.addRule(new NoTransferCurves());
+            preflight.addRule(new AllowedHalftoneTypes(Arrays.asList(1, 5)));
 
             List<Violation> violations = preflight.validate(document);
 
