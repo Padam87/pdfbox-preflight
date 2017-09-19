@@ -36,8 +36,9 @@ public class Application
             preflight.addRule(new PageCount(3, 5));
             preflight.addRule(new NoRgbText());
             preflight.addRule(new NoRgbImages());
-            preflight.addRule(new ImageMinDpi(400));
-            preflight.addRule(new MaxInkDensityText(100));
+            preflight.addRule(new ImageMinDpi(300));
+            preflight.addRule(new MaxInkDensityText(320));
+            preflight.addRule(new BoxNesting());
 
             List<Violation> violations = preflight.validate(document);
 
