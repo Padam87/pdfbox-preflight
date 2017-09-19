@@ -22,6 +22,13 @@ import java.util.List;
 import java.util.Objects;
 
 public class MaxInkDensityText extends AbstractRuleInterface {
+    private Integer maxDensity;
+
+    public MaxInkDensityText(Integer maxDensity)
+    {
+        this.maxDensity = maxDensity;
+    }
+
     protected void doValidate(PDDocument document, List<Violation> violations) {
         try {
             InkDensity s = new InkDensity(document, violations);
@@ -40,7 +47,7 @@ public class MaxInkDensityText extends AbstractRuleInterface {
         }
     }
 
-    static class InkDensity extends PDFStreamEngine
+    class InkDensity extends PDFStreamEngine
     {
         PDDocument document;
         List<Violation> violations;
@@ -108,9 +115,21 @@ public class MaxInkDensityText extends AbstractRuleInterface {
                 density += component * 100;
             }
 
-            if (density > 0) {
-                System.out.println(color.toCOSArray());
-                System.out.println(density);
+            if (density > maxDensity) {
+                String message = String.format("Text color density exceeds maximum of %d.", maxDensity);
+
+                HashMap<String, Object> context = new HashMap<String, Object>();
+
+                context.put("density", density);
+
+                Violation violation = new Violation(
+                    MaxInkDensityText.class.getSimpleName(),
+                    message,
+                    document.getPages().indexOf(getCurrentPage()),
+                    context
+                );
+
+                violations.add(violation);
             }
         }
 

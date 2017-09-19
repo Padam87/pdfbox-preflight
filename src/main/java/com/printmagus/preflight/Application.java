@@ -34,7 +34,7 @@ public class Application {
             preflight.addRule(new NoRgbText());
             preflight.addRule(new NoRgbImages());
             preflight.addRule(new ImageMinDpi(400));
-            preflight.addRule(new MaxInkDensityText());
+            preflight.addRule(new MaxInkDensityText(100));
 
             List<Violation> violations = preflight.validate(document);
 
