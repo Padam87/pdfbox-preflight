@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
  * - Invalid GTS_PDFXVersion [PDF/X-1a]
  * - Invalid GTS_PDFXVersion [PDF/X-3]
  * - Invalid GTS_PDFXConformance [PDF/X-1a]
+ * - Trapped key must be present [PDF/X-1a] [PDF/X-3]
  */
 public class InfoKeysMatch extends AbstractRule
 {
@@ -30,18 +31,10 @@ public class InfoKeysMatch extends AbstractRule
     protected void doValidate(PDDocument document, List<Violation> violations)
     {
         for (Map.Entry<String, Pattern> entry: keys.entrySet()) {
-            if (!document.getDocumentInformation().getCOSObject().containsKey(entry.getKey())) {
-                Violation violation = new Violation(
-                    this.getClass().getSimpleName(),
-                    String.format("The key '%s' is required, but not found in the info dict.", entry.getKey()),
-                    null
-                );
-
-                violations.add(violation);
-            } else {
+            if (document.getDocumentInformation().getCOSObject().containsKey(entry.getKey())) {
                 String value = document.getDocumentInformation().getCOSObject().getString(entry.getKey());
 
-                if (!entry.getValue().matcher(value).matches()) {
+                if (value == null || !entry.getValue().matcher(value).matches()) {
                     HashMap<String, Object> context = new HashMap<String, Object>();
 
                     context.put("value", value);
@@ -50,13 +43,21 @@ public class InfoKeysMatch extends AbstractRule
 
                     Violation violation = new Violation(
                         this.getClass().getSimpleName(),
-                        "Invalid info dict entry.",
+                        String.format("Invalid info dict entry: %s.", entry.getKey()),
                         null,
                         context
                     );
 
                     violations.add(violation);
                 }
+            } else {
+                Violation violation = new Violation(
+                    this.getClass().getSimpleName(),
+                    String.format("The key '%s' is required, but not found in the info dict.", entry.getKey()),
+                    null
+                );
+
+                violations.add(violation);
             }
         }
     }
