@@ -1,9 +1,12 @@
 package com.printmagus.preflight;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.printmagus.preflight.rule.*;
+import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -42,6 +45,12 @@ public class Application
             preflight.addRule(new DocumentVersion());
             preflight.addRule(new DocumentIdExists());
             preflight.addRule(new OutputIntent());
+            preflight.addRule(new InfoKeysExist(Arrays.asList(
+                COSName.TITLE.getName(),
+                COSName.CREATION_DATE.getName(),
+                COSName.MOD_DATE.getName(),
+                "GTS_PDFXVersion"
+            )));
 
             List<Violation> violations = preflight.validate(document);
 
