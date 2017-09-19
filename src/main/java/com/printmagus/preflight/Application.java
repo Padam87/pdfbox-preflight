@@ -60,6 +60,7 @@ public class Application
             keysMatch.put("GTS_PDFXConformance", Pattern.compile("PDF/X-1a:2001"));
 
             preflight.addRule(new InfoKeysMatch(keysMatch));
+            preflight.addRule(new BoxExists());
 
             List<Violation> violations = preflight.validate(document);
 
