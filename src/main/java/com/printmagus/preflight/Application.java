@@ -61,6 +61,7 @@ public class Application
 
             preflight.addRule(new InfoKeysMatch(keysMatch));
             preflight.addRule(new BoxExists());
+            preflight.addRule(new NoSeparation());
 
             List<Violation> violations = preflight.validate(document);
 
