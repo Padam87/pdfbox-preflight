@@ -62,6 +62,7 @@ public class Application
             preflight.addRule(new InfoKeysMatch(keysMatch));
             preflight.addRule(new BoxExists());
             preflight.addRule(new NoSeparation());
+            preflight.addRule(new OnlyEmbeddedFonts());
 
             List<Violation> violations = preflight.validate(document);
 
