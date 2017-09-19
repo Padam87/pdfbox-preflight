@@ -14,7 +14,7 @@ import java.util.*;
  *
  * Callas technote reference: -
  */
-public class PageCount extends AbstractRuleInterface
+public class PageCount extends AbstractRule
 {
     private final Integer min;
     private final Integer max;

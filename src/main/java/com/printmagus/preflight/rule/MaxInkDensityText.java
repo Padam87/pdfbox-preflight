@@ -6,7 +6,6 @@ import org.apache.pdfbox.contentstream.operator.DrawObject;
 import org.apache.pdfbox.contentstream.operator.color.*;
 import org.apache.pdfbox.contentstream.operator.state.*;
 import org.apache.pdfbox.contentstream.operator.text.*;
-import org.apache.pdfbox.cos.COSFloat;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
@@ -29,7 +28,7 @@ import java.util.Objects;
  *
  * Callas technote reference: -
  */
-public class MaxInkDensityText extends AbstractRuleInterface
+public class MaxInkDensityText extends AbstractRule
 {
     private Integer maxDensity;
 

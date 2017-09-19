@@ -20,7 +20,7 @@ import java.util.Objects;
  * - Uses DeviceRGB [PDF/X-1a]
  * - Only DeviceCMYK and spot colors allowed [PDF/X-3]
  */
-public class NoRgbImages extends AbstractRuleInterface
+public class NoRgbImages extends AbstractRule
 {
     @Override
     protected void doValidate(PDDocument document, List<Violation> violations)

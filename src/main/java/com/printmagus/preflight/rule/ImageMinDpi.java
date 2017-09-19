@@ -26,7 +26,7 @@ import java.util.List;
  *
  * Callas technote reference: -
  */
-public class ImageMinDpi extends AbstractRuleInterface
+public class ImageMinDpi extends AbstractRule
 {
     private Integer min;
 

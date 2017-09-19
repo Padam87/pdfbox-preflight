@@ -6,7 +6,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract public class AbstractRuleInterface implements RuleInterface
+abstract public class AbstractRule implements RuleInterface
 {
     public List<Violation> validate(PDDocument document)
     {

@@ -11,13 +11,10 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
 import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
-import org.apache.pdfbox.text.PDFTextStripper;
-import org.apache.pdfbox.text.TextPosition;
 import org.apache.pdfbox.util.Matrix;
 import org.apache.pdfbox.util.Vector;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -29,7 +26,7 @@ import java.util.Objects;
  * - Uses DeviceRGB [PDF/X-1a]
  * - Only DeviceCMYK and spot colors allowed [PDF/X-3]
  */
-public class NoRgbText extends AbstractRuleInterface
+public class NoRgbText extends AbstractRule
 {
     protected void doValidate(PDDocument document, List<Violation> violations)
     {

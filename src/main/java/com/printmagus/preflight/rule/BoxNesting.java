@@ -15,7 +15,7 @@ import java.util.List;
  * Callas technote reference:
  * - Page boxes must be nested properly [PDF/X-1a] [PDF/X-3]
  */
-public class BoxNesting extends AbstractRuleInterface
+public class BoxNesting extends AbstractRule
 {
     @Override
     protected void doValidate(PDDocument document, List<Violation> violations)
