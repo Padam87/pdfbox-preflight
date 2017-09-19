@@ -3,7 +3,9 @@ package com.printmagus.preflight;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.printmagus.preflight.rule.*;
 import org.apache.pdfbox.cos.COSName;
@@ -45,12 +47,19 @@ public class Application
             preflight.addRule(new DocumentVersion());
             preflight.addRule(new DocumentIdExists());
             preflight.addRule(new OutputIntent());
-            preflight.addRule(new InfoKeysExist(Arrays.asList(
-                COSName.TITLE.getName(),
-                COSName.CREATION_DATE.getName(),
-                COSName.MOD_DATE.getName(),
-                "GTS_PDFXVersion"
-            )));
+
+            ArrayList<String> keysExist = new ArrayList<>();
+            keysExist.add(COSName.TITLE.getName());
+            keysExist.add(COSName.CREATION_DATE.getName());
+            keysExist.add(COSName.MOD_DATE.getName());
+
+            preflight.addRule(new InfoKeysExist(keysExist));
+
+            HashMap<String, Pattern> keysMatch = new HashMap<>();
+            keysMatch.put("GTS_PDFXVersion", Pattern.compile("PDF/X-1:2001"));
+            keysMatch.put("GTS_PDFXConformance", Pattern.compile("PDF/X-1a:2001"));
+
+            preflight.addRule(new InfoKeysMatch(keysMatch));
 
             List<Violation> violations = preflight.validate(document);
 

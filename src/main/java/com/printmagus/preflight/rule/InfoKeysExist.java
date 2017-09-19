@@ -11,6 +11,10 @@ import java.util.List;
 /**
  * This rules combines a info dict key existance rules.
  *
+ * The Info dictionary keys CreationDate, ModDate and Title in any PDF/X file should
+ * contain reasonable values. Formally the only thing that can be checked is whether
+ * they are missing or empty.
+ *
  * Callas technote reference:
  * - CreationDate, ModDate and Title required [PDF/X-1a] [PDF/X-3]
  * - GTS_PDFXVersion key must be present [PDF/X-1a] [PDF/X-3]
