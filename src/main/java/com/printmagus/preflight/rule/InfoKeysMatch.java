@@ -1,6 +1,9 @@
 package com.printmagus.preflight.rule;
 
 import com.printmagus.preflight.Violation;
+import org.apache.pdfbox.cos.COSBase;
+import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.cos.COSString;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import java.util.HashMap;
@@ -32,7 +35,14 @@ public class InfoKeysMatch extends AbstractRule
     {
         for (Map.Entry<String, Pattern> entry: keys.entrySet()) {
             if (document.getDocumentInformation().getCOSObject().containsKey(entry.getKey())) {
-                String value = document.getDocumentInformation().getCOSObject().getString(entry.getKey());
+                COSBase cos = document.getDocumentInformation().getCOSObject().getDictionaryObject(entry.getKey());
+                String value = null;
+
+                if (cos instanceof COSString) {
+                    value = ((COSString) cos).getString();
+                } else if (cos instanceof COSName) {
+                    value = ((COSName) cos).getName();
+                }
 
                 if (value == null || !entry.getValue().matcher(value).matches()) {
                     HashMap<String, Object> context = new HashMap<String, Object>();
