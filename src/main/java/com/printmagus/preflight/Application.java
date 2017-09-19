@@ -40,6 +40,7 @@ public class Application
             preflight.addRule(new MaxInkDensityText(320));
             preflight.addRule(new BoxNesting());
             preflight.addRule(new DocumentVersion());
+            preflight.addRule(new DocumentIdExists());
 
             List<Violation> violations = preflight.validate(document);
 
