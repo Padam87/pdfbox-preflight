@@ -33,7 +33,7 @@ public class Application
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            File file = new File("src/main/resources/PDFX.pdf");
+            File file = new File("src/main/resources/test.pdf");
             PDDocument document = PDDocument.load(file);
 
             Preflight preflight = new Preflight();
@@ -58,12 +58,13 @@ public class Application
             HashMap<String, Pattern> keysMatch = new HashMap<>();
             keysMatch.put("GTS_PDFXVersion", Pattern.compile("PDF/X-1:2001"));
             keysMatch.put("GTS_PDFXConformance", Pattern.compile("PDF/X-1a:2001"));
-            keysMatch.put("Trapped", Pattern.compile("True|False"));
+            keysMatch.put(COSName.TRAPPED.getName(), Pattern.compile("True|False"));
 
             preflight.addRule(new InfoKeysMatch(keysMatch));
             preflight.addRule(new BoxExists());
             preflight.addRule(new NoSeparation());
             preflight.addRule(new OnlyEmbeddedFonts());
+            preflight.addRule(new NoTransferCurves());
 
             List<Violation> violations = preflight.validate(document);
 
