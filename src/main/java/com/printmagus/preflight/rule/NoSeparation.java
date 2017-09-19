@@ -27,6 +27,8 @@ public class NoSeparation extends AbstractRule
                     "Page must not be separated.",
                     document.getPages().indexOf(page)
                 );
+
+                violations.add(violation);
             }
         }
     }
