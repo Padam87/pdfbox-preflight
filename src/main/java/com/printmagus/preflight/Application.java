@@ -33,7 +33,7 @@ public class Application
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            File file = new File("src/main/resources/test.pdf");
+            File file = new File("src/main/resources/ghent.pdf");
             PDDocument document = PDDocument.load(file);
 
             Preflight preflight = new Preflight();
@@ -69,6 +69,8 @@ public class Application
             preflight.addRule(new NoPostScripts());
             preflight.addRule(new NoActions());
             preflight.addRule(new NoTransparency());
+            preflight.addRule(new NoAnnotationsInsidePageArea());
+            preflight.addRule(new NoFormsInsidePageArea());
 
             List<Violation> violations = preflight.validate(document);
 
