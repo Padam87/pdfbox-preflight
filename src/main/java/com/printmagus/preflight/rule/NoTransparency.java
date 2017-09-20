@@ -32,39 +32,11 @@ public class NoTransparency extends AbstractRule
     @Override
     protected void doValidate(PDDocument document, List<Violation> violations)
     {
-        for (PDPage page: document.getPages()) {
-            for (COSName name: page.getResources().getXObjectNames()) {
-                try {
-                    PDXObject object = page.getResources().getXObject(name);
-
-                    if (object instanceof PDTransparencyGroup) {
-                        HashMap<String, Object> context = new HashMap<String, Object>();
-
-                        context.put("transparency", object);
-
-                        Violation violation = new Violation(
-                            this.getClass().getSimpleName(),
-                            "Transparency not allowed.",
-                            document.getPages().indexOf(page),
-                            context
-                        );
-
-                        violations.add(violation);
-                    }
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
-        }
-
-        // @TODO: doing it this way results in way more violations... find out why
-        /*for (COSObject cos: document.getDocument().getObjects()) {
+        for (COSObject cos: document.getDocument().getObjects()) {
             if (cos.getObject() instanceof COSDictionary) {
                 COSDictionary dictionary = (COSDictionary) cos.getObject();
 
-                if (dictionary.containsKey(COSName.TYPE)
-                    && dictionary.getDictionaryObject(COSName.TYPE) == COSName.GROUP
-                    && dictionary.containsKey(COSName.S)
+                if (dictionary.containsKey(COSName.S)
                     && dictionary.getDictionaryObject(COSName.S) == COSName.TRANSPARENCY
                 ) {
                     System.out.println(cos.getObjectNumber());
@@ -73,9 +45,21 @@ public class NoTransparency extends AbstractRule
 
                     context.put("transparency", dictionary);
 
+                    String message = null;
+
+                    if (dictionary.containsKey(COSName.TYPE)
+                        && dictionary.getDictionaryObject(COSName.TYPE) == COSName.GROUP
+                    ) {
+                        message = "Transparency not allowed (transparency group)";
+                    } else if (dictionary.containsKey(COSName.CS)) {
+                        message = "Transparency not allowed (color space)";
+                    } else {
+                        message = "Transparency not allowed (unknown)";
+                    }
+
                     Violation violation = new Violation(
                         this.getClass().getSimpleName(),
-                        "Transparency not allowed",
+                        message,
                         null,
                         context
                     );
@@ -83,6 +67,6 @@ public class NoTransparency extends AbstractRule
                     violations.add(violation);
                 }
             }
-        }*/
+        }
     }
 }
