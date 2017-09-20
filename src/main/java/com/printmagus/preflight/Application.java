@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import com.printmagus.preflight.rule.*;
+import com.printmagus.preflight.standard.X1a;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.springframework.boot.CommandLineRunner;
@@ -33,44 +34,15 @@ public class Application
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            File file = new File("src/main/resources/ghent.pdf");
+            File file = new File("src/main/resources/hotel.pdf");
             PDDocument document = PDDocument.load(file);
 
             Preflight preflight = new Preflight();
 
+            preflight.addStandard(new X1a());
             preflight.addRule(new PageCount(3, 5));
-            preflight.addRule(new NoRgbText());
-            preflight.addRule(new NoRgbImages());
             preflight.addRule(new ImageMinDpi(300));
             preflight.addRule(new MaxInkDensityText(320));
-            preflight.addRule(new BoxNesting());
-            preflight.addRule(new DocumentVersion());
-            preflight.addRule(new DocumentIdExists());
-            preflight.addRule(new OutputIntent());
-
-            ArrayList<String> keysExist = new ArrayList<>();
-            keysExist.add(COSName.TITLE.getName());
-            keysExist.add(COSName.CREATION_DATE.getName());
-            keysExist.add(COSName.MOD_DATE.getName());
-
-            preflight.addRule(new InfoKeysExist(keysExist));
-
-            HashMap<String, Pattern> keysMatch = new HashMap<>();
-            keysMatch.put("GTS_PDFXVersion", Pattern.compile("PDF/X-1:2001"));
-            keysMatch.put("GTS_PDFXConformance", Pattern.compile("PDF/X-1a:2001"));
-            keysMatch.put(COSName.TRAPPED.getName(), Pattern.compile("True|False"));
-
-            preflight.addRule(new InfoKeysMatch(keysMatch));
-            preflight.addRule(new BoxExists());
-            preflight.addRule(new NoSeparation());
-            preflight.addRule(new OnlyEmbeddedFonts());
-            preflight.addRule(new NoTransferCurves());
-            preflight.addRule(new AllowedHalftoneTypes(Arrays.asList(1, 5)));
-            preflight.addRule(new NoPostScripts());
-            preflight.addRule(new NoActions());
-            preflight.addRule(new NoTransparency());
-            preflight.addRule(new NoAnnotationsInsidePageArea());
-            preflight.addRule(new NoFormsInsidePageArea());
 
             List<Violation> violations = preflight.validate(document);
 

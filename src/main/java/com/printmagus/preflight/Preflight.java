@@ -1,6 +1,7 @@
 package com.printmagus.preflight;
 
 import com.printmagus.preflight.rule.RuleInterface;
+import com.printmagus.preflight.standard.StandardInterface;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import java.util.ArrayList;
@@ -26,8 +27,13 @@ public class Preflight implements PreflightInterface
         return rules;
     }
 
-    public void addRule(RuleInterface ruleInterface)
+    public void addRule(RuleInterface rule)
     {
-        this.rules.add(ruleInterface);
+        this.rules.add(rule);
+    }
+
+    public void addStandard(StandardInterface standard)
+    {
+        this.rules.addAll(standard.getRules());
     }
 }
