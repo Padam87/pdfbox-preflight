@@ -2,6 +2,10 @@ package com.printmagus.preflight.standard;
 
 import com.printmagus.preflight.rule.*;
 import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.pdmodel.graphics.color.PDDeviceCMYK;
+import org.apache.pdfbox.pdmodel.graphics.color.PDDeviceGray;
+import org.apache.pdfbox.pdmodel.graphics.color.PDDeviceN;
+import org.apache.pdfbox.pdmodel.graphics.color.PDSeparation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,8 +35,14 @@ public class X1a extends AbstractStandard
         rules.add(new OutputIntent());
 
         // Only DeviceCMYK and spot colors allowed
-        rules.add(new NoRgbText());
-        rules.add(new NoRgbImages());
+        ArrayList<String> allowedColorSpaces = new ArrayList<>();
+        allowedColorSpaces.add(PDDeviceCMYK.class.getName());
+        allowedColorSpaces.add(PDDeviceGray.class.getName());
+        allowedColorSpaces.add(PDDeviceN.class.getName());
+        allowedColorSpaces.add(PDSeparation.class.getName());
+
+        rules.add(new ColorSpaceText(allowedColorSpaces));
+        rules.add(new ColorSpaceImages(allowedColorSpaces));
 
         // Fonts must be embedded
         rules.add(new OnlyEmbeddedFonts());

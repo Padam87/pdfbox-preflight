@@ -15,6 +15,7 @@ import org.apache.pdfbox.util.Matrix;
 import org.apache.pdfbox.util.Vector;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -22,16 +23,35 @@ import java.util.Objects;
 /**
  * The only color space that is not allowed in a PDF/X-3 file is plain RGB (DeviceRGB).
  *
+ * For a PDF/X-1a file, only the base color spaces DeviceGray, DeviceCMYK and Separation
+ * (spot colors) are allowed. This applies for the color actually used as well as for
+ * any alternate color spaces.
+ *
  * Callas technote reference:
- * - Uses DeviceRGB [PDF/X-1a]
- * - Only DeviceCMYK and spot colors allowed [PDF/X-3]
+ * - Uses DeviceRGB [PDF/X-3]
+ * - Only DeviceCMYK and spot colors allowed [PDF/X-1a]
  */
-public class NoRgbText extends AbstractRule
+public class ColorSpaceText extends AbstractRule
 {
+    private List<String> allowedColorSpaces;
+    private List<String> disallowedColorSpaces;
+
+    public ColorSpaceText(List<String> allowedColorSpaces)
+    {
+        this.allowedColorSpaces = allowedColorSpaces;
+        this.disallowedColorSpaces = new ArrayList<>();
+    }
+
+    public ColorSpaceText(List<String> allowedColorSpaces, List<String> disallowedColorSpaces)
+    {
+        this.allowedColorSpaces = allowedColorSpaces;
+        this.disallowedColorSpaces = disallowedColorSpaces;
+    }
+
     protected void doValidate(PDDocument document, List<Violation> violations)
     {
         try {
-            PrintTextColors s = new PrintTextColors(document, violations);
+            TextColors s = new TextColors(document, violations);
 
             for (PDPage page : document.getPages()) {
                 s.processPage(page);
@@ -48,7 +68,7 @@ public class NoRgbText extends AbstractRule
         }
     }
 
-    static class PrintTextColors extends PDFStreamEngine
+    class TextColors extends PDFStreamEngine
     {
         PDDocument document;
         List<Violation> violations;
@@ -56,7 +76,7 @@ public class NoRgbText extends AbstractRule
         PDColorSpace currentNonStrokingColorSpace;
         StringBuilder currentText = new StringBuilder();
 
-        PrintTextColors(PDDocument document, List<Violation> violations) throws IOException
+        TextColors(PDDocument document, List<Violation> violations) throws IOException
         {
             this.document = document;
             this.violations = violations;
@@ -100,7 +120,10 @@ public class NoRgbText extends AbstractRule
 
         @Override
         protected void showGlyph(
-            Matrix textRenderingMatrix, PDFont font, int code, String unicode,
+            Matrix textRenderingMatrix,
+            PDFont font,
+            int code,
+            String unicode,
             Vector displacement
         ) throws IOException
         {
@@ -114,7 +137,8 @@ public class NoRgbText extends AbstractRule
             }
 
             if (currentStrokingColorSpace != state.getStrokingColorSpace()
-                || currentNonStrokingColorSpace != state.getNonStrokingColorSpace()) {
+                || currentNonStrokingColorSpace != state.getNonStrokingColorSpace()
+            ) {
                 processColorSpaceText();
 
                 currentStrokingColorSpace = state.getStrokingColorSpace();
@@ -127,19 +151,17 @@ public class NoRgbText extends AbstractRule
 
         private void processColorSpaceText()
         {
-            if (this.isRgbColorSpace(currentStrokingColorSpace) || this.isRgbColorSpace(currentNonStrokingColorSpace)) {
+            if (!this.isValidColorSpace(currentStrokingColorSpace) || !this.isValidColorSpace(currentNonStrokingColorSpace)) {
                 HashMap<String, Object> context = new HashMap<String, Object>();
 
                 context.put("text", currentText);
-                context.put("graphicsState", getGraphicsState().clone());
-
-                String message = String.format("RGB text found: %s", currentText);
+                context.put("colorSpaceStroking", currentStrokingColorSpace);
+                context.put("colorSpaceNonStroking", currentNonStrokingColorSpace);
 
                 Violation violation = new Violation(
-                    NoRgbText.class.getSimpleName(),
-                    message,
-                    document.getPages()
-                            .indexOf(getCurrentPage()),
+                    ColorSpaceText.class.getSimpleName(),
+                    String.format("Invalid image ColorSpace found : %s.", currentStrokingColorSpace),
+                    document.getPages().indexOf(getCurrentPage()),
                     context
                 );
 
@@ -147,15 +169,19 @@ public class NoRgbText extends AbstractRule
             }
         }
 
-        private Boolean isRgbColorSpace(PDColorSpace colorSpace)
+        private Boolean isValidColorSpace(PDColorSpace colorSpace)
         {
-            if (Objects.equals(colorSpace.getName(), "DeviceRGB")) {
-                return true;
+            Boolean valid = allowedColorSpaces.isEmpty();
+
+            if (allowedColorSpaces.contains(colorSpace.getClass().getName())) {
+                valid = true;
             }
 
-            // TODO: An additional check needed for custom color spaces here
+            if (disallowedColorSpaces.contains(colorSpace.getClass().getName())) {
+                valid = false;
+            }
 
-            return false;
+            return valid;
         }
     }
 }
