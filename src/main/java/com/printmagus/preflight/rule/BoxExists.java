@@ -34,6 +34,14 @@ public class BoxExists extends AbstractRule
                 );
 
                 violations.add(violation);
+            } else if (trimBox != null && artBox != null) {
+                Violation violation = new Violation(
+                    this.getClass().getSimpleName(),
+                    "Either TrimBox or ArtBox must be present, but not both.",
+                    document.getPages().indexOf(page)
+                );
+
+                violations.add(violation);
             }
         }
     }
