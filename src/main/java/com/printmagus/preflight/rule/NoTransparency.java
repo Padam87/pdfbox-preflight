@@ -39,8 +39,6 @@ public class NoTransparency extends AbstractRule
                 if (dictionary.containsKey(COSName.S)
                     && dictionary.getDictionaryObject(COSName.S) == COSName.TRANSPARENCY
                 ) {
-                    System.out.println(cos.getObjectNumber());
-
                     HashMap<String, Object> context = new HashMap<String, Object>();
 
                     context.put("transparency", dictionary);
