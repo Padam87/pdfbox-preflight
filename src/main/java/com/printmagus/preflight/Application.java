@@ -33,7 +33,7 @@ public class Application
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            File file = new File("src/main/resources/js.pdf");
+            File file = new File("src/main/resources/test.pdf");
             PDDocument document = PDDocument.load(file);
 
             Preflight preflight = new Preflight();
@@ -68,6 +68,7 @@ public class Application
             preflight.addRule(new AllowedHalftoneTypes(Arrays.asList(1, 5)));
             preflight.addRule(new NoPostScripts());
             preflight.addRule(new NoActions());
+            preflight.addRule(new NoTransparency());
 
             List<Violation> violations = preflight.validate(document);
 
