@@ -27,7 +27,11 @@ public class Violation
     @Override
     public String toString()
     {
-        return String.format("[%s](%s) %s", rule, page == null ? "-" : page, message);
+        if (context == null || context.isEmpty()) {
+            return String.format("[%s](%s) %s", rule, page == null ? "-" : page, message);
+        }
+
+        return String.format("[%s](%s) %s -> %s", rule, page == null ? "-" : page, message, context);
     }
 
     public String getMessage()
