@@ -2,8 +2,8 @@ package com.printmagus.preflight.rule;
 
 import com.printmagus.preflight.Violation;
 import org.apache.pdfbox.contentstream.PDFStreamEngine;
+import org.apache.pdfbox.contentstream.operator.DrawObject;
 import org.apache.pdfbox.contentstream.operator.Operator;
-import org.apache.pdfbox.contentstream.operator.graphics.DrawObject;
 import org.apache.pdfbox.contentstream.operator.state.*;
 import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSName;
@@ -66,7 +66,7 @@ public class ImageMinDpi extends AbstractRule
             this.violations = violations;
 
             addOperator(new Concatenate());
-            addOperator(new DrawObject());
+            addOperator(new DrawObject()); // text version - we just need the info, no need to actually draw them
             addOperator(new SetGraphicsStateParameters());
             addOperator(new Save());
             addOperator(new Restore());
