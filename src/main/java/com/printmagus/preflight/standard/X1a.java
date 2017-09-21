@@ -89,7 +89,7 @@ public class X1a extends AbstractStandard
         rules.add(new NoPostScripts());
 
         // Encryption prohibited
-        // @TODO
+        rules.add(new NoEncryption());
 
         // Alternate image must not be default for printing
         // @TODO
