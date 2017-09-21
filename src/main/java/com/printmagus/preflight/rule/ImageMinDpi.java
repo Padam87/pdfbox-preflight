@@ -47,8 +47,7 @@ public class ImageMinDpi extends AbstractRule
         } catch (IOException e) {
             violations.add(
                 new Violation(
-                    this.getClass()
-                        .getSimpleName(),
+                    this.getClass().getSimpleName(),
                     String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
                     null
                 )
@@ -77,16 +76,16 @@ public class ImageMinDpi extends AbstractRule
         @Override
         protected void processOperator(Operator operator, List<COSBase> operands) throws IOException
         {
-            if (operator.getName()
-                        .equals("Do")) {
+            if (operator.getName().equals("Do")) {
                 COSName objectName = (COSName)operands.get(0);
                 PDXObject xobject = getResources().getXObject(objectName);
+
                 if (xobject instanceof PDImageXObject) {
                     PDImageXObject image = (PDImageXObject)xobject;
                     Matrix ctm = getGraphicsState().getCurrentTransformationMatrix();
 
-                    Float DpiX = image.getWidth() * 72 / ctm.getScaleX();
-                    Float DpiY = image.getHeight() * 72 / ctm.getScaleY();
+                    Float DpiX = Math.abs(image.getWidth() * 72 / ctm.getScaleX());
+                    Float DpiY = Math.abs(image.getHeight() * 72 / ctm.getScaleY());
 
                     if (DpiX < min || DpiY < min) {
                         String message = String.format("Image with low DPI (X: %.0f, Y: %.0f)", DpiX, DpiY);
@@ -100,8 +99,7 @@ public class ImageMinDpi extends AbstractRule
                         Violation violation = new Violation(
                             ImageMinDpi.class.getSimpleName(),
                             message,
-                            document.getPages()
-                                    .indexOf(getCurrentPage()),
+                            document.getPages().indexOf(getCurrentPage()),
                             context
                         );
 
@@ -109,11 +107,9 @@ public class ImageMinDpi extends AbstractRule
                     }
 
 
-                } else {
-                    if (xobject instanceof PDFormXObject) {
-                        PDFormXObject form = (PDFormXObject)xobject;
-                        showForm(form);
-                    }
+                } else if (xobject instanceof PDFormXObject) {
+                    PDFormXObject form = (PDFormXObject) xobject;
+                    showForm(form);
                 }
             } else {
                 super.processOperator(operator, operands);
