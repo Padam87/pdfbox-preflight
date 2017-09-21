@@ -98,14 +98,14 @@ public class MaxInkDensityImage extends AbstractRule
                     if (image.getColorSpace() instanceof PDDeviceCMYK) {
                         Raster r = SampledRasterReader.getRaster(image, image.getColorKeyMask());
 
-                        int[] pixels = r.getPixels(0,0, r.getWidth(), r.getHeight(), (int[])null);
+                        float[] pixels = r.getPixels(0,0, r.getWidth(), r.getHeight(), (float[])null);
 
                         Float max = 0f;
                         for (int i = 0; i < pixels.length; i += 4) {
-                            Float c = ((float) pixels[i]) / 255 * 100;
-                            Float m = ((float) pixels[i + 1]) / 255 * 100;
-                            Float y = ((float) pixels[i + 2]) / 255 * 100;
-                            Float k = ((float) pixels[i + 3]) / 255 * 100;
+                            Float c = pixels[i] / 255 * 100;
+                            Float m = pixels[i + 1] / 255 * 100;
+                            Float y = pixels[i + 2] / 255 * 100;
+                            Float k = pixels[i + 3] / 255 * 100;
 
                             Float density = c + m + y + k;
 
