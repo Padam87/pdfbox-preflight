@@ -1,15 +1,10 @@
 package com.printmagus.preflight;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import com.printmagus.preflight.rule.*;
 import com.printmagus.preflight.standard.X1a;
-import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -21,7 +16,6 @@ import org.springframework.util.StopWatch;
 @SpringBootApplication
 public class Application
 {
-
     public static void main(String[] args)
     {
         SpringApplication.run(Application.class, args);
@@ -34,7 +28,7 @@ public class Application
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            File file = new File("src/main/resources/hotel.pdf");
+            File file = new File("src/main/resources/test3.pdf");
             PDDocument document = PDDocument.load(file);
 
             Preflight preflight = new Preflight();
@@ -43,6 +37,7 @@ public class Application
             preflight.addRule(new PageCount(3, 5));
             preflight.addRule(new ImageMinDpi(300));
             preflight.addRule(new MaxInkDensityText(320));
+            preflight.addRule(new MaxInkDensityImage(320));
 
             List<Violation> violations = preflight.validate(document);
 
@@ -54,5 +49,4 @@ public class Application
             System.exit(0);
         };
     }
-
 }
