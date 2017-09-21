@@ -3,9 +3,11 @@ package com.printmagus.preflight.rule;
 import com.printmagus.preflight.Violation;
 import org.apache.pdfbox.contentstream.PDFStreamEngine;
 import org.apache.pdfbox.contentstream.operator.DrawObject;
+import org.apache.pdfbox.contentstream.operator.Operator;
 import org.apache.pdfbox.contentstream.operator.color.*;
 import org.apache.pdfbox.contentstream.operator.state.*;
 import org.apache.pdfbox.contentstream.operator.text.*;
+import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
@@ -48,8 +50,7 @@ public class MaxInkDensityText extends AbstractRule
         } catch (IOException e) {
             violations.add(
                 new Violation(
-                    this.getClass()
-                        .getSimpleName(),
+                    this.getClass().getSimpleName(),
                     String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
                     null
                 )
@@ -61,8 +62,8 @@ public class MaxInkDensityText extends AbstractRule
     {
         PDDocument document;
         List<Violation> violations;
-        PDColorSpace currentStrokingColorSpace;
-        PDColorSpace currentNonStrokingColorSpace;
+        PDColor currentStrokingColor;
+        PDColor currentNonStrokingColor;
         StringBuilder currentText = new StringBuilder();
 
         InkDensity(PDDocument document, List<Violation> violations) throws IOException
@@ -109,7 +110,10 @@ public class MaxInkDensityText extends AbstractRule
 
         @Override
         protected void showGlyph(
-            Matrix textRenderingMatrix, PDFont font, int code, String unicode,
+            Matrix textRenderingMatrix,
+            PDFont font,
+            int code,
+            String unicode,
             Vector displacement
         ) throws IOException
         {
@@ -117,15 +121,39 @@ public class MaxInkDensityText extends AbstractRule
 
             PDGraphicsState state = getGraphicsState();
 
-            processColor(state.getStrokingColor());
-            processColor(state.getNonStrokingColor());
+            if (currentStrokingColor == null) {
+                currentStrokingColor = state.getStrokingColor();
+                currentNonStrokingColor = state.getNonStrokingColor();
+            }
+
+            if (currentStrokingColor != state.getStrokingColor()
+                || currentNonStrokingColor != state.getNonStrokingColor()
+            ) {
+                processColor(currentStrokingColor);
+                processColor(currentNonStrokingColor);
+
+                currentStrokingColor = state.getStrokingColor();
+                currentNonStrokingColor = state.getNonStrokingColor();
+                currentText = new StringBuilder();
+            }
+
+            currentText.append(unicode);
+        }
+
+        @Override
+        protected void processOperator(Operator operator, List<COSBase> operands) throws IOException
+        {
+            super.processOperator(operator, operands);
+
+            if (operator.getName().equals("Td")) { // move text position
+                currentText.append(System.getProperty("line.separator")); // just add a new line, this is plaintext after all
+            }
         }
 
         private void processColor(PDColor color) throws IOException
         {
             Float density = 0f;
-            for (Float component : color.toCOSArray()
-                                        .toFloatArray()) {
+            for (Float component : color.toCOSArray().toFloatArray()) {
                 density += component * 100;
             }
 
@@ -135,28 +163,18 @@ public class MaxInkDensityText extends AbstractRule
                 HashMap<String, Object> context = new HashMap<String, Object>();
 
                 context.put("density", density);
+                context.put("color", color);
+                context.put("text", currentText);
 
                 Violation violation = new Violation(
                     MaxInkDensityText.class.getSimpleName(),
                     message,
-                    document.getPages()
-                            .indexOf(getCurrentPage()),
+                    document.getPages().indexOf(getCurrentPage()),
                     context
                 );
 
                 violations.add(violation);
             }
-        }
-
-        private Boolean isRgbColorSpace(PDColorSpace colorSpace)
-        {
-            if (Objects.equals(colorSpace.getName(), "DeviceRGB")) {
-                return true;
-            }
-
-            // TODO: An additional check needed for custom color spaces here
-
-            return false;
         }
     }
 }
