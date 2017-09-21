@@ -123,7 +123,7 @@ public class MaxInkDensityImage extends AbstractRule
                             context.put("image", image);
 
                             Violation violation = new Violation(
-                                MaxInkDensityText.class.getSimpleName(),
+                                MaxInkDensityImage.class.getSimpleName(),
                                 message,
                                 document.getPages().indexOf(getCurrentPage()),
                                 context
