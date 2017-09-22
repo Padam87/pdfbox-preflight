@@ -4,7 +4,6 @@ import com.printmagus.preflight.Violation;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**

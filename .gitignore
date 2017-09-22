@@ -1,7 +1,5 @@
 .gradle
 /build/
-/src/main/resources/*.pdf
-/results/
 
 # Ignore Gradle GUI config
 gradle-app.setting

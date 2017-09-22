@@ -1,11 +1,8 @@
 package com.printmagus.preflight.rule;
 
 import com.printmagus.preflight.Violation;
-import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.cos.COSObject;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
 
 import java.io.IOException;
 import java.util.List;

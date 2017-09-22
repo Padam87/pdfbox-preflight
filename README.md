@@ -2,7 +2,7 @@
 A PDF preflight lib for validation against X1-a and X3 stantards.
 
 ## Documentation
-The library is still under development, check `Application.java` for an example, or come back later.
+The library is still under development, check the `console` project for an example, or come back later.
 
 ## Special thanks to
 - [@yob](https://github.com/yob), for [his preflight library](https://github.com/yob/pdf-preflight) written in ruby

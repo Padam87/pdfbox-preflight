@@ -2,10 +2,7 @@ package com.printmagus.preflight.rule;
 
 import com.printmagus.preflight.Violation;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

@@ -1,4 +1,3 @@
-group 'com.printmagus'
 version '0.1'
 
 apply plugin: 'java'

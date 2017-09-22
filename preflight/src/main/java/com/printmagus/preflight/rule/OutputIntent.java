@@ -1,7 +1,6 @@
 package com.printmagus.preflight.rule;
 
 import com.printmagus.preflight.Violation;
-import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.cos.COSStream;

@@ -3,46 +3,54 @@ package com.printmagus.preflight.rule;
 import com.printmagus.preflight.Violation;
 import org.apache.pdfbox.contentstream.PDFStreamEngine;
 import org.apache.pdfbox.contentstream.operator.DrawObject;
-import org.apache.pdfbox.contentstream.operator.Operator;
 import org.apache.pdfbox.contentstream.operator.color.*;
 import org.apache.pdfbox.contentstream.operator.state.*;
 import org.apache.pdfbox.contentstream.operator.text.*;
-import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
 import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 import org.apache.pdfbox.util.Matrix;
 import org.apache.pdfbox.util.Vector;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 /**
- * This rule is not a part of any standard, but it is vital.
+ * The only color space that is not allowed in a PDF/X-3 file is plain RGB (DeviceRGB).
  *
- * Even the best offset printers have a problem with an ink density over 320.
- * The higher the density, the more likely it will spill.
+ * For a PDF/X-1a file, only the base color spaces DeviceGray, DeviceCMYK and Separation
+ * (spot colors) are allowed. This applies for the color actually used as well as for
+ * any alternate color spaces.
  *
- * Callas technote reference: -
+ * Callas technote reference:
+ * - Uses DeviceRGB [PDF/X-3]
+ * - Only DeviceCMYK and spot colors allowed [PDF/X-1a]
  */
-public class MaxInkDensityText extends AbstractRule
+public class ColorSpaceText extends AbstractRule
 {
-    private Integer maxDensity;
+    private List<String> allowedColorSpaces;
+    private List<String> disallowedColorSpaces;
 
-    public MaxInkDensityText(Integer maxDensity)
+    public ColorSpaceText(List<String> allowedColorSpaces)
     {
-        this.maxDensity = maxDensity;
+        this.allowedColorSpaces = allowedColorSpaces;
+        this.disallowedColorSpaces = new ArrayList<>();
+    }
+
+    public ColorSpaceText(List<String> allowedColorSpaces, List<String> disallowedColorSpaces)
+    {
+        this.allowedColorSpaces = allowedColorSpaces;
+        this.disallowedColorSpaces = disallowedColorSpaces;
     }
 
     protected void doValidate(PDDocument document, List<Violation> violations)
     {
         try {
-            InkDensity s = new InkDensity(document, violations);
+            TextColors s = new TextColors(document, violations);
 
             for (PDPage page : document.getPages()) {
                 s.processPage(page);
@@ -50,7 +58,8 @@ public class MaxInkDensityText extends AbstractRule
         } catch (IOException e) {
             violations.add(
                 new Violation(
-                    this.getClass().getSimpleName(),
+                    this.getClass()
+                        .getSimpleName(),
                     String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
                     null
                 )
@@ -58,15 +67,15 @@ public class MaxInkDensityText extends AbstractRule
         }
     }
 
-    class InkDensity extends PDFStreamEngine
+    class TextColors extends PDFStreamEngine
     {
         PDDocument document;
         List<Violation> violations;
-        PDColor currentStrokingColor;
-        PDColor currentNonStrokingColor;
+        PDColorSpace currentStrokingColorSpace;
+        PDColorSpace currentNonStrokingColorSpace;
         StringBuilder currentText = new StringBuilder();
 
-        InkDensity(PDDocument document, List<Violation> violations) throws IOException
+        TextColors(PDDocument document, List<Violation> violations) throws IOException
         {
             this.document = document;
             this.violations = violations;
@@ -121,60 +130,57 @@ public class MaxInkDensityText extends AbstractRule
 
             PDGraphicsState state = getGraphicsState();
 
-            if (currentStrokingColor == null) {
-                currentStrokingColor = state.getStrokingColor();
-                currentNonStrokingColor = state.getNonStrokingColor();
+            if (currentStrokingColorSpace == null) {
+                currentStrokingColorSpace = state.getStrokingColorSpace();
+                currentNonStrokingColorSpace = state.getNonStrokingColorSpace();
             }
 
-            if (currentStrokingColor != state.getStrokingColor()
-                || currentNonStrokingColor != state.getNonStrokingColor()
+            if (currentStrokingColorSpace != state.getStrokingColorSpace()
+                || currentNonStrokingColorSpace != state.getNonStrokingColorSpace()
             ) {
-                processColor(currentStrokingColor);
-                processColor(currentNonStrokingColor);
+                processColorSpaceText();
 
-                currentStrokingColor = state.getStrokingColor();
-                currentNonStrokingColor = state.getNonStrokingColor();
+                currentStrokingColorSpace = state.getStrokingColorSpace();
+                currentNonStrokingColorSpace = state.getNonStrokingColorSpace();
                 currentText = new StringBuilder();
             }
 
             currentText.append(unicode);
         }
 
-        @Override
-        protected void processOperator(Operator operator, List<COSBase> operands) throws IOException
+        private void processColorSpaceText()
         {
-            super.processOperator(operator, operands);
-
-            if (operator.getName().equals("Td")) { // move text position
-                currentText.append(System.getProperty("line.separator")); // just add a new line, this is plaintext after all
-            }
-        }
-
-        private void processColor(PDColor color) throws IOException
-        {
-            Float density = 0f;
-            for (Float component : color.toCOSArray().toFloatArray()) {
-                density += component * 100;
-            }
-
-            if (density > maxDensity) {
-                String message = String.format("Text color density exceeds maximum of %d.", maxDensity);
-
+            if (!this.isValidColorSpace(currentStrokingColorSpace) || !this.isValidColorSpace(currentNonStrokingColorSpace)) {
                 HashMap<String, Object> context = new HashMap<String, Object>();
 
-                context.put("density", density);
-                context.put("color", color);
                 context.put("text", currentText);
+                context.put("colorSpaceStroking", currentStrokingColorSpace);
+                context.put("colorSpaceNonStroking", currentNonStrokingColorSpace);
 
                 Violation violation = new Violation(
-                    MaxInkDensityText.class.getSimpleName(),
-                    message,
+                    ColorSpaceText.class.getSimpleName(),
+                    String.format("Invalid image ColorSpace found : %s.", currentStrokingColorSpace),
                     document.getPages().indexOf(getCurrentPage()),
                     context
                 );
 
                 violations.add(violation);
             }
+        }
+
+        private Boolean isValidColorSpace(PDColorSpace colorSpace)
+        {
+            Boolean valid = allowedColorSpaces.isEmpty();
+
+            if (allowedColorSpaces.contains(colorSpace.getClass().getName())) {
+                valid = true;
+            }
+
+            if (disallowedColorSpaces.contains(colorSpace.getClass().getName())) {
+                valid = false;
+            }
+
+            return valid;
         }
     }
 }
