@@ -8,7 +8,6 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 
@@ -20,13 +19,9 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
-    // tag::actuator[]
-    compile("org.springframework.boot:spring-boot-starter-actuator")
-    // end::actuator[]
-    // tag::tests[]
-    testCompile("org.springframework.boot:spring-boot-starter-test")
-    // end::tests[]
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-amqp'
+    compile group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.+'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.+'
 
-    compile 'org.apache.pdfbox:pdfbox:2.0.4'
+    testCompile("junit:junit")
 }
