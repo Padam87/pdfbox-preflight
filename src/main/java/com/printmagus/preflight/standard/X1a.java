@@ -31,7 +31,7 @@ public class X1a extends AbstractStandard
         // OutputConditionIdentifier required in PDF/X OutputIntent
         // Destination profile must be embedded or Registry Name must be filled out
         // OutputIntent Info key must be present
-        // Destination profile must be ICC output profile (type ‘prtr’)
+        // Destination profile must be ICC output profile (type 'prtr')
         rules.add(new OutputIntent());
 
         // Only DeviceCMYK and spot colors allowed

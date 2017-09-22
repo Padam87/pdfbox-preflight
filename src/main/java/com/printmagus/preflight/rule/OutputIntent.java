@@ -34,7 +34,7 @@ import java.util.List;
  * about the intended printing condition.
  *
  * (6) The ICC profile embedded as a destination profile into a PDF/X-3 OutputIntent must
- * be an output profile (type ‘prtr’).
+ * be an output profile (type 'prtr').
  *
  * Callas technote reference:
  * - (1) OutputIntent must be present [PDF/X-1a] [PDF/X-3]
@@ -42,7 +42,7 @@ import java.util.List;
  * - (3) OutputConditionIdentifier required in PDF/X OutputIntent [PDF/X-1a] [PDF/X-3]
  * - (4) Destination profile must be embedded or Registry Name must be filled out [PDF/X-1a] [PDF/X-3]
  * - (5) OutputIntent Info key must be present [PDF/X-1a] [PDF/X-3]
- * - (6) Destination profile must be ICC output profile (type ‘prtr’) [PDF/X-1a] [PDF/X-3]
+ * - (6) Destination profile must be ICC output profile (type 'prtr') [PDF/X-1a] [PDF/X-3]
  */
 public class OutputIntent extends AbstractRule
 {
@@ -107,7 +107,7 @@ public class OutputIntent extends AbstractRule
                 if (!outputProfile.toTextString().substring(12, 16).equals("prtr")) {
                     Violation violation = new Violation(
                         this.getClass().getSimpleName(),
-                        "Destination profile must be ICC output profile (type ‘prtr’).",
+                        "Destination profile must be ICC output profile (type 'prtr').",
                         null
                     );
 
