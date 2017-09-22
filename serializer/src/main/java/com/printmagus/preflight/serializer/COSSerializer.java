@@ -3,12 +3,8 @@ package com.printmagus.preflight.serializer;
 import com.google.gson.*;
 import org.apache.pdfbox.cos.*;
 import org.apache.pdfbox.pdmodel.common.COSObjectable;
-import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Set;
 
 public class COSSerializer
 {

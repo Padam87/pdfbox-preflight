@@ -20,5 +20,6 @@ targetCompatibility = 1.8
 
 dependencies {
     compile project(':preflight')
+    compile project(':serializer')
     compile group: 'org.springframework.boot', name: 'spring-boot-starter', version: '1.5.7.RELEASE'
 }
