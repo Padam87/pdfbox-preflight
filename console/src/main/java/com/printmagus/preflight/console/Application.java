@@ -2,6 +2,8 @@ package com.printmagus.preflight.console;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -37,7 +39,7 @@ public class Application implements ApplicationRunner
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        String resultPath = "results/" + System.currentTimeMillis();
+        Path resultPath = Paths.get("results");
 
         File file = new File("src/main/resources/gls.pdf");
         PDDocument document = PDDocument.load(file);
@@ -55,7 +57,7 @@ public class Application implements ApplicationRunner
         GsonBuilder builder = GsonBuilderFactory.create().setPrettyPrinting().serializeNulls();
         builder.registerTypeAdapter(
             PDImageXObject.class,
-            new PDImageXObjectSerializer().new FileSerializer(resultPath)
+            new PDImageXObjectSerializer().new FileSerializer(resultPath.toString())
         );
 
         Gson gson = builder.create();

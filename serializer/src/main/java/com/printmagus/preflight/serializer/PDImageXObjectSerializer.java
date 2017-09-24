@@ -8,10 +8,13 @@ import javax.imageio.ImageIO;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.lang.reflect.Type;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 public class PDImageXObjectSerializer
 {
+    public static String key = String.valueOf(System.currentTimeMillis());
+
     public class NullSerializer implements JsonSerializer<PDImageXObject>
     {
         public JsonElement serialize(PDImageXObject src, Type typeOfSrc, JsonSerializationContext context)
@@ -69,7 +72,13 @@ public class PDImageXObjectSerializer
                 result = cache.get(src.hashCode());
             } else {
                 try {
-                    File file = new File(String.format("%s.png", basePath + File.separator + src.hashCode()));
+                    File file = new File(
+                        Paths.get(
+                            basePath,
+                            key,
+                            String.valueOf(src.hashCode())
+                        ).toString() + ".png"
+                    );
 
                     file.mkdirs();
 
