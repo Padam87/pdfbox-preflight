@@ -5,6 +5,7 @@ import org.apache.commons.codec.binary.Base64OutputStream;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.lang.reflect.Type;
@@ -80,7 +81,7 @@ public class PDImageXObjectSerializer
                         ).toString() + ".png"
                     );
 
-                    file.mkdirs();
+                    file.getParentFile().mkdirs();
 
                     ImageIO.write(src.getImage(), "png", file);
 
