@@ -39,7 +39,7 @@ public class Application implements ApplicationRunner
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        Path resultPath = Paths.get("results");
+        Path resultPath = Paths.get("results", String.valueOf(System.currentTimeMillis()));
 
         File file = new File("src/main/resources/gls.pdf");
         PDDocument document = PDDocument.load(file);

@@ -57,26 +57,37 @@ public class PDImageXObjectSerializer
 
     public class FileSerializer implements JsonSerializer<PDImageXObject>
     {
-        HashMap<Integer, File> cache = new HashMap<>();
-        String basePath;
+        private HashMap<Integer, File> cache = new HashMap<>();
+        private String directory;
+        private Boolean referenceOnly;
 
-        public FileSerializer(String basePath)
+        public FileSerializer(String directory)
         {
-            this.basePath = basePath;
+            this.directory = directory;
+            this.referenceOnly = false;
+        }
+
+        public FileSerializer(String directory, Boolean referenceOnly)
+        {
+            this.directory = directory;
+            this.referenceOnly = referenceOnly;
         }
 
         public JsonElement serialize(PDImageXObject src, Type typeOfSrc, JsonSerializationContext context)
         {
-            File result = null;
-
             if (cache.containsKey(src.hashCode())) {
-                result = cache.get(src.hashCode());
+                if (referenceOnly) {
+                    return new JsonPrimitive(src.hashCode());
+                }
+
+                File file = cache.get(src.hashCode());
+
+                return new JsonPrimitive(file.getAbsolutePath());
             } else {
                 try {
                     File file = new File(
                         Paths.get(
-                            basePath,
-                            key,
+                            directory,
                             String.valueOf(src.hashCode())
                         ).toString() + ".png"
                     );
@@ -85,17 +96,34 @@ public class PDImageXObjectSerializer
 
                     ImageIO.write(src.getImage(), "png", file);
 
-                    result = file;
+                    cache.put(src.hashCode(), file);
 
-                    cache.put(src.hashCode(), result);
+                    if (referenceOnly) {
+                        return new JsonPrimitive(src.hashCode());
+                    }
+
+                    return new JsonPrimitive(file.getAbsolutePath());
                 } catch (Exception e) {
                     // null is fine
                 }
             }
 
-            return result == null
-                ? null
-                : new JsonPrimitive(result.getAbsolutePath());
+            return null;
+        }
+
+        public HashMap<Integer, File> getCache()
+        {
+            return cache;
+        }
+
+        public void setCache(HashMap<Integer, File> cache)
+        {
+            this.cache = cache;
+        }
+
+        public void clearCache()
+        {
+            this.cache = new HashMap<>();
         }
     }
 }
