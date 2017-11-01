@@ -41,7 +41,7 @@ public class Application implements ApplicationRunner
 
         Path resultPath = Paths.get("results", String.valueOf(System.currentTimeMillis()));
 
-        File file = new File("src/main/resources/gls.pdf");
+        File file = new File("src/main/resources/liliput-magazin-beliv.pdf");
         PDDocument document = PDDocument.load(file);
 
         Preflight preflight = new Preflight();
@@ -50,15 +50,15 @@ public class Application implements ApplicationRunner
         preflight.addRule(new PageCount(3, 5));
         preflight.addRule(new ImageMinDpi(300));
         preflight.addRule(new MaxInkDensityText(320));
-        preflight.addRule(new MaxInkDensityImage(200));
+        preflight.addRule(new MaxInkDensityImage(320));
 
         List<Violation> violations = preflight.validate(document);
 
         GsonBuilder builder = GsonBuilderFactory.create().setPrettyPrinting().serializeNulls();
-        builder.registerTypeAdapter(
+        /*builder.registerTypeAdapter(
             PDImageXObject.class,
-            new PDImageXObjectSerializer().new FileSerializer(resultPath.toString())
-        );
+            new PDImageXObjectSerializer().new FileSerializer(resultPath.toString(), true)
+        );*/
 
         Gson gson = builder.create();
 
@@ -73,6 +73,8 @@ public class Application implements ApplicationRunner
             System.out.println(gson.toJson(violation));
             // System.out.println(violation);
         }
+
+        System.out.println(violations.size());
 
         stopWatch.stop();
 

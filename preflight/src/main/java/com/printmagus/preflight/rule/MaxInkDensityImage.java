@@ -65,18 +65,13 @@ public class MaxInkDensityImage extends AbstractRule
     {
         PDDocument document;
         List<Violation> violations;
+        HashMap<COSName, Float> cache;
 
         ImageDensity(PDDocument document, List<Violation> violations) throws IOException
         {
             this.document = document;
             this.violations = violations;
-
-            addOperator(new Concatenate());
-            addOperator(new DrawObject()); // text version - we just need the info, no need to actually draw them
-            addOperator(new SetGraphicsStateParameters());
-            addOperator(new Save());
-            addOperator(new Restore());
-            addOperator(new SetMatrix());
+            this.cache = new HashMap<COSName, Float>();
         }
 
         @Override
@@ -84,54 +79,55 @@ public class MaxInkDensityImage extends AbstractRule
         {
             if (operator.getName().equals("Do")) {
                 COSName objectName = (COSName)operands.get(0);
-                PDXObject xobject = getResources().getXObject(objectName);
+                Float max = 0f;
 
-                if (xobject instanceof PDImageXObject) {
-                    PDImageXObject image = (PDImageXObject)xobject;
+                if (cache.containsKey(objectName)) {
+                    max = cache.get(objectName);
+                } else {
+                    if (getResources().isImageXObject(objectName)) {
+                        PDImageXObject image = (PDImageXObject) getResources().getXObject(objectName);
 
-                    if (image.getColorSpace() instanceof PDDeviceCMYK) {
-                        Raster r = SampledRasterReader.getRaster(image, image.getColorKeyMask());
+                        if (image.getColorSpace() instanceof PDDeviceCMYK) {
+                            Raster r = SampledRasterReader.getRaster(image, image.getColorKeyMask());
 
-                        float[] pixels = r.getPixels(0,0, r.getWidth(), r.getHeight(), (float[])null);
+                            float[] pixels = r.getPixels(0,0, r.getWidth(), r.getHeight(), (float[])null);
 
-                        Float max = 0f;
-                        for (int i = 0; i < pixels.length; i += 4) {
-                            Float c = pixels[i] / 255 * 100;
-                            Float m = pixels[i + 1] / 255 * 100;
-                            Float y = pixels[i + 2] / 255 * 100;
-                            Float k = pixels[i + 3] / 255 * 100;
+                            for (int i = 0; i < pixels.length; i += 4) {
+                                Float c = pixels[i] / 255 * 100;
+                                Float m = pixels[i + 1] / 255 * 100;
+                                Float y = pixels[i + 2] / 255 * 100;
+                                Float k = pixels[i + 3] / 255 * 100;
 
-                            Float density = c + m + y + k;
+                                Float density = c + m + y + k;
 
-                            if (density > max) {
-                                max = density;
+                                if (density > max) {
+                                    max = density;
+                                }
                             }
                         }
-
-                        if (max > maxDensity) {
-                            String message = String.format("Image color density exceeds maximum of %d.", maxDensity);
-
-                            HashMap<String, Object> context = new HashMap<String, Object>();
-
-                            context.put("density", max);
-                            context.put("image", image);
-
-                            Violation violation = new Violation(
-                                MaxInkDensityImage.class.getSimpleName(),
-                                message,
-                                document.getPages().indexOf(getCurrentPage()),
-                                context
-                            );
-
-                            violations.add(violation);
-                        }
                     }
-                } else if (xobject instanceof PDFormXObject) {
-                    PDFormXObject form = (PDFormXObject) xobject;
-                    showForm(form);
+
+                    cache.put(objectName, max);
                 }
-            } else {
-                super.processOperator(operator, operands);
+
+                if (max > maxDensity) {
+                    String message = String.format("Image color density exceeds maximum of %d.", maxDensity);
+                    PDImageXObject image = (PDImageXObject) getResources().getXObject(objectName);
+
+                    HashMap<String, Object> context = new HashMap<String, Object>();
+
+                    context.put("density", max);
+                    context.put("image", image);
+
+                    Violation violation = new Violation(
+                        MaxInkDensityImage.class.getSimpleName(),
+                        message,
+                        document.getPages().indexOf(getCurrentPage()),
+                        context
+                    );
+
+                    violations.add(violation);
+                }
             }
         }
     }

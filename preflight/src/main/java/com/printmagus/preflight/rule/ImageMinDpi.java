@@ -2,7 +2,6 @@ package com.printmagus.preflight.rule;
 
 import com.printmagus.preflight.Violation;
 import org.apache.pdfbox.contentstream.PDFStreamEngine;
-import org.apache.pdfbox.contentstream.operator.DrawObject;
 import org.apache.pdfbox.contentstream.operator.Operator;
 import org.apache.pdfbox.contentstream.operator.state.*;
 import org.apache.pdfbox.cos.COSBase;
@@ -66,7 +65,6 @@ public class ImageMinDpi extends AbstractRule
             this.violations = violations;
 
             addOperator(new Concatenate());
-            addOperator(new DrawObject()); // text version - we just need the info, no need to actually draw them
             addOperator(new SetGraphicsStateParameters());
             addOperator(new Save());
             addOperator(new Restore());
@@ -84,11 +82,11 @@ public class ImageMinDpi extends AbstractRule
                     PDImageXObject image = (PDImageXObject)xobject;
                     Matrix ctm = getGraphicsState().getCurrentTransformationMatrix();
 
-                    Float DpiX = Math.abs(image.getWidth() * 72 / ctm.getScaleX());
-                    Float DpiY = Math.abs(image.getHeight() * 72 / ctm.getScaleY());
+                    Integer DpiX = (int) Math.ceil(Math.abs(image.getWidth() * 72 / ctm.getScaleX()));
+                    Integer DpiY = (int) Math.ceil(Math.abs(image.getHeight() * 72 / ctm.getScaleY()));
 
                     if (DpiX < min || DpiY < min) {
-                        String message = String.format("Image with low DPI (X: %.0f, Y: %.0f)", DpiX, DpiY);
+                        String message = String.format("Image with low DPI (X: %d, Y: %d)", DpiX, DpiY);
 
                         HashMap<String, Object> context = new HashMap<String, Object>();
 
