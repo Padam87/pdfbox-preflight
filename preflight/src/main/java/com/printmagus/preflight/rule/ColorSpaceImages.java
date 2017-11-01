@@ -104,7 +104,7 @@ public class ColorSpaceImages extends AbstractRule
                     cache.put(objectName, colorSpace);
                 }
 
-                if (!isValidColorSpace(colorSpace)) {
+                if (colorSpace != null && !isValidColorSpace(colorSpace)) {
                     HashMap<String, Object> context = new HashMap<String, Object>();
                     PDImageXObject image = (PDImageXObject) getResources().getXObject(objectName);
 
