@@ -1,5 +1,7 @@
 package com.printmagus.preflight;
 
+import org.apache.pdfbox.pdmodel.PDPage;
+
 import java.util.HashMap;
 
 public class Violation

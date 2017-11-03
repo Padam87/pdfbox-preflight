@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class X1a extends AbstractStandard
+public class X1a implements StandardInterface
 {
     @Override
     public List<RuleInterface> getRules()
@@ -86,7 +86,7 @@ public class X1a extends AbstractStandard
         rules.add(new AllowedHalftoneTypes(Arrays.asList(1, 5)));
 
         // Embedded PostScript prohibited
-        rules.add(new NoPostScripts());
+        //rules.add(new NoPostScripts());
 
         // Encryption prohibited
         rules.add(new NoEncryption());

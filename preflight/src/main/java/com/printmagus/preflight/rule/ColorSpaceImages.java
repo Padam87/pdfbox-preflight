@@ -2,12 +2,12 @@ package com.printmagus.preflight.rule;
 
 import com.printmagus.preflight.Violation;
 import com.printmagus.preflight.util.ColorSpaceName;
-import com.printmagus.preflight.util.ImageProcessingStreamEngine;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
+import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ import java.util.List;
  * - Uses DeviceRGB [PDF/X-3]
  * - Only DeviceCMYK and spot colors allowed [PDF/X-1a]
  */
-public class ColorSpaceImages extends AbstractRule
+public class ColorSpaceImages extends AbstractRule implements XObjectValidator
 {
     private List<COSName> allowedColorSpaces;
     private List<COSName> disallowedColorSpaces;
@@ -46,60 +46,43 @@ public class ColorSpaceImages extends AbstractRule
     @Override
     protected void doValidate(PDDocument document, List<Violation> violations)
     {
-        try {
-            ColorSpaceImages.ImageCs printer = new ColorSpaceImages.ImageCs(document, violations);
-
-            for (PDPage page : document.getPages()) {
-                printer.processPage(page);
-            }
-        } catch (IOException e) {
-            violations.add(
-                new Violation(
-                    this.getClass().getSimpleName(),
-                    String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
-                    null
-                )
-            );
-        }
+        streamEngine.addValidator(this);
     }
 
-    public class ImageCs extends ImageProcessingStreamEngine
+    @Override
+    public List<Violation> validate(COSName objectName, PDXObject xobject, PDPage page, PDGraphicsState graphicsState)
     {
-        PDDocument document;
-        List<Violation> violations;
-        HashMap<COSName, PDColorSpace> cache;
+        List<Violation> violations = new ArrayList<>();
 
-        ImageCs(PDDocument document, List<Violation> violations) throws IOException
-        {
-            this.document = document;
-            this.violations = violations;
-            this.cache = new HashMap<COSName, PDColorSpace>();
+        if (!(xobject instanceof PDImageXObject)) {
+            return violations;
         }
 
-        protected void processImage(COSName objectName, PDImageXObject image)
-        {
-            try {
-                COSName colorSpace = ColorSpaceName.get(image);
+        PDImageXObject image = (PDImageXObject) xobject;
 
-                if (colorSpace != null && !isValidColorSpace(colorSpace)) {
-                    HashMap<String, Object> context = new HashMap<String, Object>();
+        try {
+            COSName colorSpace = ColorSpaceName.get(image);
 
-                    context.put("image", image);
-                    context.put("colorSpace", image.getColorSpace());
+            if (colorSpace != null && !isValidColorSpace(colorSpace)) {
+                HashMap<String, Object> context = new HashMap<String, Object>();
 
-                    Violation violation = new Violation(
-                        ColorSpaceImages.class.getSimpleName(),
-                        String.format("Invalid image ColorSpace found : %s.", image.getColorSpace().getName()),
-                        document.getPages().indexOf(getCurrentPage()),
-                        context
-                    );
+                context.put("image", image);
+                context.put("colorSpace", colorSpace);
 
-                    violations.add(violation);
-                }
-            } catch (IOException e) {
-                //
+                Violation violation = new Violation(
+                    ColorSpaceImages.class.getSimpleName(),
+                    String.format("Invalid image ColorSpace found : %s.", image.getColorSpace().getName()),
+                    -1, //FIXME
+                    context
+                );
+
+                violations.add(violation);
             }
+        } catch (IOException e) {
+            //
         }
+
+        return violations;
     }
 
     private Boolean isValidColorSpace(COSName colorSpace)

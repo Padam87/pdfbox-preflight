@@ -5,7 +5,7 @@ import com.printmagus.preflight.rule.RuleInterface;
 
 import java.util.List;
 
-public interface StandardInterface extends PreflightInterface
+public interface StandardInterface
 {
     public List<RuleInterface> getRules();
 }

@@ -1,15 +1,15 @@
 package com.printmagus.preflight.rule;
 
 import com.printmagus.preflight.Violation;
-import com.printmagus.preflight.util.ImageProcessingStreamEngine;
-import org.apache.pdfbox.contentstream.operator.state.*;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 import org.apache.pdfbox.util.Matrix;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -21,7 +21,7 @@ import java.util.List;
  *
  * Callas technote reference: -
  */
-public class ImageMinDpi extends AbstractRule
+public class ImageMinDpi extends AbstractRule implements XObjectValidator
 {
     private Integer min;
 
@@ -33,64 +33,42 @@ public class ImageMinDpi extends AbstractRule
     @Override
     protected void doValidate(PDDocument document, List<Violation> violations)
     {
-        try {
-            ImageDpi printer = new ImageDpi(document, violations);
-
-            for (PDPage page : document.getPages()) {
-                printer.processPage(page);
-            }
-        } catch (IOException e) {
-            violations.add(
-                new Violation(
-                    this.getClass().getSimpleName(),
-                    String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
-                    null
-                )
-            );
-        }
+        streamEngine.addValidator(this);
     }
 
-    public class ImageDpi extends ImageProcessingStreamEngine
+    @Override
+    public List<Violation> validate(COSName objectName, PDXObject xobject, PDPage page, PDGraphicsState graphicsState)
     {
-        PDDocument document;
-        List<Violation> violations;
+        List<Violation> violations = new ArrayList<>();
 
-        ImageDpi(PDDocument document, List<Violation> violations) throws IOException
-        {
-            this.document = document;
-            this.violations = violations;
-
-            addOperator(new Concatenate());
-            addOperator(new SetGraphicsStateParameters());
-            addOperator(new Save());
-            addOperator(new Restore());
-            addOperator(new SetMatrix());
+        if (!(xobject instanceof PDImageXObject)) {
+            return violations;
         }
 
-        @Override
-        protected void processImage(COSName objectName, PDImageXObject image)
-        {
-            Matrix ctm = getGraphicsState().getCurrentTransformationMatrix();
+        PDImageXObject image = (PDImageXObject) xobject;
 
-            Integer DpiX = (int) Math.ceil(Math.abs(image.getWidth() * 72 / ctm.getScaleX()));
-            Integer DpiY = (int) Math.ceil(Math.abs(image.getHeight() * 72 / ctm.getScaleY()));
+        Matrix ctm = graphicsState.getCurrentTransformationMatrix();
 
-            if (DpiX < min || DpiY < min) {
-                HashMap<String, Object> context = new HashMap<String, Object>();
+        Integer DpiX = (int) Math.ceil(Math.abs(image.getWidth() * 72 / ctm.getScaleX()));
+        Integer DpiY = (int) Math.ceil(Math.abs(image.getHeight() * 72 / ctm.getScaleY()));
 
-                context.put("image", image);
-                context.put("dpiX", DpiX);
-                context.put("dpiY", DpiY);
+        if (DpiX < min || DpiY < min) {
+            HashMap<String, Object> context = new HashMap<String, Object>();
 
-                Violation violation = new Violation(
-                    ImageMinDpi.class.getSimpleName(),
-                    String.format("Image with low DPI (X: %d, Y: %d)", DpiX, DpiY),
-                    document.getPages().indexOf(getCurrentPage()),
-                    context
-                );
+            context.put("image", image);
+            context.put("dpiX", DpiX);
+            context.put("dpiY", DpiY);
 
-                violations.add(violation);
-            }
+            Violation violation = new Violation(
+                ImageMinDpi.class.getSimpleName(),
+                String.format("Image with low DPI (X: %d, Y: %d)", DpiX, DpiY),
+                -1, //FIXME
+                context
+            );
+
+            violations.add(violation);
         }
+
+        return violations;
     }
 }
