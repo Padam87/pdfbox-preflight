@@ -1,19 +1,14 @@
 package com.printmagus.preflight.rule;
 
 import com.printmagus.preflight.Violation;
+import com.printmagus.preflight.util.ColorSpaceName;
+import com.printmagus.preflight.util.MultiThreadImageProcessingStreamEngine;
 import com.printmagus.preflight.util.SampledRasterReader;
-import org.apache.pdfbox.contentstream.PDFStreamEngine;
-import org.apache.pdfbox.contentstream.operator.DrawObject;
-import org.apache.pdfbox.contentstream.operator.Operator;
-import org.apache.pdfbox.contentstream.operator.state.*;
-import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.graphics.PDXObject;
-import org.apache.pdfbox.pdmodel.graphics.color.PDDeviceCMYK;
-import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.util.Matrix;
 
 import java.awt.image.*;
 import java.io.IOException;
@@ -50,7 +45,7 @@ public class MaxInkDensityImage extends AbstractRule
             for (PDPage page : document.getPages()) {
                 printer.processPage(page);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             violations.add(
                 new Violation(
                     this.getClass().getSimpleName(),
@@ -61,7 +56,7 @@ public class MaxInkDensityImage extends AbstractRule
         }
     }
 
-    public class ImageDensity extends PDFStreamEngine
+    public class ImageDensity extends MultiThreadImageProcessingStreamEngine
     {
         PDDocument document;
         List<Violation> violations;
@@ -75,19 +70,23 @@ public class MaxInkDensityImage extends AbstractRule
         }
 
         @Override
-        protected void processOperator(Operator operator, List<COSBase> operands) throws IOException
-        {
-            if (operator.getName().equals("Do")) {
-                COSName objectName = (COSName)operands.get(0);
-                Float max = 0f;
+        protected Runnable getWorker(
+            COSName objectName,
+            PDImageXObject image,
+            PDPage page,
+            Matrix ctm
+        ) {
+            return new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    try {
+                        Float max = 0f;
 
-                if (cache.containsKey(objectName)) {
-                    max = cache.get(objectName);
-                } else {
-                    if (getResources().isImageXObject(objectName)) {
-                        PDImageXObject image = (PDImageXObject) getResources().getXObject(objectName);
-
-                        if (image.getColorSpace() instanceof PDDeviceCMYK) {
+                        if (cache.containsKey(objectName)) {
+                            max = cache.get(objectName);
+                        } else if (ColorSpaceName.get(image) == COSName.DEVICECMYK) {
                             Raster r = SampledRasterReader.getRaster(image, image.getColorKeyMask());
 
                             float[] pixels = r.getPixels(0,0, r.getWidth(), r.getHeight(), (float[])null);
@@ -105,30 +104,29 @@ public class MaxInkDensityImage extends AbstractRule
                                 }
                             }
                         }
+
+                        cache.put(objectName, max);
+
+                        if (max > maxDensity) {
+                            HashMap<String, Object> context = new HashMap<String, Object>();
+
+                            context.put("density", max);
+                            context.put("image", image);
+
+                            Violation violation = new Violation(
+                                MaxInkDensityImage.class.getSimpleName(),
+                                String.format("Image color density exceeds maximum of %d.", maxDensity),
+                                document.getPages().indexOf(page),
+                                context
+                            );
+
+                            violations.add(violation);
+                        }
+                    } catch (IOException e) {
+                        //
                     }
-
-                    cache.put(objectName, max);
                 }
-
-                if (max > maxDensity) {
-                    String message = String.format("Image color density exceeds maximum of %d.", maxDensity);
-                    PDImageXObject image = (PDImageXObject) getResources().getXObject(objectName);
-
-                    HashMap<String, Object> context = new HashMap<String, Object>();
-
-                    context.put("density", max);
-                    context.put("image", image);
-
-                    Violation violation = new Violation(
-                        MaxInkDensityImage.class.getSimpleName(),
-                        message,
-                        document.getPages().indexOf(getCurrentPage()),
-                        context
-                    );
-
-                    violations.add(violation);
-                }
-            }
+            };
         }
     }
 }

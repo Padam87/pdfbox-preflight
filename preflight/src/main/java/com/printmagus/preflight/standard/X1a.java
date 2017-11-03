@@ -35,11 +35,11 @@ public class X1a extends AbstractStandard
         rules.add(new OutputIntent());
 
         // Only DeviceCMYK and spot colors allowed
-        ArrayList<String> allowedColorSpaces = new ArrayList<>();
-        allowedColorSpaces.add(PDDeviceCMYK.class.getName());
-        allowedColorSpaces.add(PDDeviceGray.class.getName());
-        allowedColorSpaces.add(PDDeviceN.class.getName());
-        allowedColorSpaces.add(PDSeparation.class.getName());
+        ArrayList<COSName> allowedColorSpaces = new ArrayList<>();
+        allowedColorSpaces.add(COSName.DEVICECMYK);
+        allowedColorSpaces.add(COSName.DEVICEGRAY);
+        allowedColorSpaces.add(COSName.DEVICEN);
+        allowedColorSpaces.add(COSName.SEPARATION);
 
         rules.add(new ColorSpaceText(allowedColorSpaces));
         rules.add(new ColorSpaceImages(allowedColorSpaces));

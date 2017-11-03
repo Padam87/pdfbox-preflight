@@ -1,15 +1,11 @@
 package com.printmagus.preflight.rule;
 
 import com.printmagus.preflight.Violation;
-import org.apache.pdfbox.contentstream.PDFStreamEngine;
-import org.apache.pdfbox.contentstream.operator.Operator;
+import com.printmagus.preflight.util.ImageProcessingStreamEngine;
 import org.apache.pdfbox.contentstream.operator.state.*;
-import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.graphics.PDXObject;
-import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.util.Matrix;
 
@@ -54,7 +50,7 @@ public class ImageMinDpi extends AbstractRule
         }
     }
 
-    public class ImageDpi extends PDFStreamEngine
+    public class ImageDpi extends ImageProcessingStreamEngine
     {
         PDDocument document;
         List<Violation> violations;
@@ -72,45 +68,28 @@ public class ImageMinDpi extends AbstractRule
         }
 
         @Override
-        protected void processOperator(Operator operator, List<COSBase> operands) throws IOException
+        protected void processImage(COSName objectName, PDImageXObject image)
         {
-            if (operator.getName().equals("Do")) {
-                COSName objectName = (COSName)operands.get(0);
-                PDXObject xobject = getResources().getXObject(objectName);
+            Matrix ctm = getGraphicsState().getCurrentTransformationMatrix();
 
-                if (xobject instanceof PDImageXObject) {
-                    PDImageXObject image = (PDImageXObject)xobject;
-                    Matrix ctm = getGraphicsState().getCurrentTransformationMatrix();
+            Integer DpiX = (int) Math.ceil(Math.abs(image.getWidth() * 72 / ctm.getScaleX()));
+            Integer DpiY = (int) Math.ceil(Math.abs(image.getHeight() * 72 / ctm.getScaleY()));
 
-                    Integer DpiX = (int) Math.ceil(Math.abs(image.getWidth() * 72 / ctm.getScaleX()));
-                    Integer DpiY = (int) Math.ceil(Math.abs(image.getHeight() * 72 / ctm.getScaleY()));
+            if (DpiX < min || DpiY < min) {
+                HashMap<String, Object> context = new HashMap<String, Object>();
 
-                    if (DpiX < min || DpiY < min) {
-                        String message = String.format("Image with low DPI (X: %d, Y: %d)", DpiX, DpiY);
+                context.put("image", image);
+                context.put("dpiX", DpiX);
+                context.put("dpiY", DpiY);
 
-                        HashMap<String, Object> context = new HashMap<String, Object>();
+                Violation violation = new Violation(
+                    ImageMinDpi.class.getSimpleName(),
+                    String.format("Image with low DPI (X: %d, Y: %d)", DpiX, DpiY),
+                    document.getPages().indexOf(getCurrentPage()),
+                    context
+                );
 
-                        context.put("image", image);
-                        context.put("dpiX", DpiX);
-                        context.put("dpiY", DpiY);
-
-                        Violation violation = new Violation(
-                            ImageMinDpi.class.getSimpleName(),
-                            message,
-                            document.getPages().indexOf(getCurrentPage()),
-                            context
-                        );
-
-                        violations.add(violation);
-                    }
-
-
-                } else if (xobject instanceof PDFormXObject) {
-                    PDFormXObject form = (PDFormXObject) xobject;
-                    showForm(form);
-                }
-            } else {
-                super.processOperator(operator, operands);
+                violations.add(violation);
             }
         }
     }

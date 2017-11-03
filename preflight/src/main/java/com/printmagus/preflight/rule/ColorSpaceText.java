@@ -6,10 +6,12 @@ import org.apache.pdfbox.contentstream.operator.DrawObject;
 import org.apache.pdfbox.contentstream.operator.color.*;
 import org.apache.pdfbox.contentstream.operator.state.*;
 import org.apache.pdfbox.contentstream.operator.text.*;
+import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
+import org.apache.pdfbox.pdmodel.graphics.color.PDIndexed;
 import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 import org.apache.pdfbox.util.Matrix;
 import org.apache.pdfbox.util.Vector;
@@ -32,16 +34,16 @@ import java.util.List;
  */
 public class ColorSpaceText extends AbstractRule
 {
-    private List<String> allowedColorSpaces;
-    private List<String> disallowedColorSpaces;
+    private List<COSName> allowedColorSpaces;
+    private List<COSName> disallowedColorSpaces;
 
-    public ColorSpaceText(List<String> allowedColorSpaces)
+    public ColorSpaceText(List<COSName> allowedColorSpaces)
     {
         this.allowedColorSpaces = allowedColorSpaces;
         this.disallowedColorSpaces = new ArrayList<>();
     }
 
-    public ColorSpaceText(List<String> allowedColorSpaces, List<String> disallowedColorSpaces)
+    public ColorSpaceText(List<COSName> allowedColorSpaces, List<COSName> disallowedColorSpaces)
     {
         this.allowedColorSpaces = allowedColorSpaces;
         this.disallowedColorSpaces = disallowedColorSpaces;
@@ -172,11 +174,17 @@ public class ColorSpaceText extends AbstractRule
         {
             Boolean valid = allowedColorSpaces.isEmpty();
 
-            if (allowedColorSpaces.contains(colorSpace.getClass().getName())) {
+            if (colorSpace instanceof PDIndexed) {
+                colorSpace = ((PDIndexed)colorSpace).getBaseColorSpace();
+            }
+
+            COSName cosName = COSName.getPDFName(colorSpace.getName());
+
+            if (allowedColorSpaces.contains(cosName)) {
                 valid = true;
             }
 
-            if (disallowedColorSpaces.contains(colorSpace.getClass().getName())) {
+            if (disallowedColorSpaces.contains(cosName)) {
                 valid = false;
             }
 

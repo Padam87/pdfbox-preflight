@@ -1,26 +1,17 @@
 package com.printmagus.preflight.rule;
 
 import com.printmagus.preflight.Violation;
-import com.printmagus.preflight.util.SampledRasterReader;
-import org.apache.pdfbox.contentstream.PDFStreamEngine;
-import org.apache.pdfbox.contentstream.operator.Operator;
-import org.apache.pdfbox.cos.COSBase;
+import com.printmagus.preflight.util.ColorSpaceName;
+import com.printmagus.preflight.util.ImageProcessingStreamEngine;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDResources;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
-import org.apache.pdfbox.pdmodel.graphics.color.PDDeviceCMYK;
-import org.apache.pdfbox.pdmodel.graphics.color.PDIndexed;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
-import javax.swing.text.html.HTMLDocument;
-import java.awt.color.ColorSpace;
-import java.awt.image.Raster;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -36,16 +27,16 @@ import java.util.List;
  */
 public class ColorSpaceImages extends AbstractRule
 {
-    private List<String> allowedColorSpaces;
-    private List<String> disallowedColorSpaces;
+    private List<COSName> allowedColorSpaces;
+    private List<COSName> disallowedColorSpaces;
 
-    public ColorSpaceImages(List<String> allowedColorSpaces)
+    public ColorSpaceImages(List<COSName> allowedColorSpaces)
     {
         this.allowedColorSpaces = allowedColorSpaces;
         this.disallowedColorSpaces = new ArrayList<>();
     }
 
-    public ColorSpaceImages(List<String> allowedColorSpaces, List<String> disallowedColorSpaces)
+    public ColorSpaceImages(List<COSName> allowedColorSpaces, List<COSName> disallowedColorSpaces)
     {
         this.allowedColorSpaces = allowedColorSpaces;
         this.disallowedColorSpaces = disallowedColorSpaces;
@@ -72,7 +63,7 @@ public class ColorSpaceImages extends AbstractRule
         }
     }
 
-    public class ImageCs extends PDFStreamEngine
+    public class ImageCs extends ImageProcessingStreamEngine
     {
         PDDocument document;
         List<Violation> violations;
@@ -85,28 +76,13 @@ public class ColorSpaceImages extends AbstractRule
             this.cache = new HashMap<COSName, PDColorSpace>();
         }
 
-        @Override
-        protected void processOperator(Operator operator, List<COSBase> operands) throws IOException
+        protected void processImage(COSName objectName, PDImageXObject image)
         {
-            if (operator.getName().equals("Do")) {
-                COSName objectName = (COSName)operands.get(0);
-                PDColorSpace colorSpace = null;
-
-                if (cache.containsKey(objectName)) {
-                    colorSpace = cache.get(objectName);
-                } else {
-                    if (getResources().isImageXObject(objectName)) {
-                        PDImageXObject image = (PDImageXObject) getResources().getXObject(objectName);
-
-                        colorSpace = image.getColorSpace();
-                    }
-
-                    cache.put(objectName, colorSpace);
-                }
+            try {
+                COSName colorSpace = ColorSpaceName.get(image);
 
                 if (colorSpace != null && !isValidColorSpace(colorSpace)) {
                     HashMap<String, Object> context = new HashMap<String, Object>();
-                    PDImageXObject image = (PDImageXObject) getResources().getXObject(objectName);
 
                     context.put("image", image);
                     context.put("colorSpace", image.getColorSpace());
@@ -120,23 +96,21 @@ public class ColorSpaceImages extends AbstractRule
 
                     violations.add(violation);
                 }
+            } catch (IOException e) {
+                //
             }
         }
     }
 
-    private Boolean isValidColorSpace(PDColorSpace colorSpace)
+    private Boolean isValidColorSpace(COSName colorSpace)
     {
         Boolean valid = allowedColorSpaces.isEmpty();
 
-        if (colorSpace instanceof PDIndexed) {
-            colorSpace = ((PDIndexed) colorSpace).getBaseColorSpace();
-        }
-
-        if (allowedColorSpaces.contains(colorSpace.getClass().getName())) {
+        if (allowedColorSpaces.contains(colorSpace)) {
             valid = true;
         }
 
-        if (disallowedColorSpaces.contains(colorSpace.getClass().getName())) {
+        if (disallowedColorSpaces.contains(colorSpace)) {
             valid = false;
         }
 
