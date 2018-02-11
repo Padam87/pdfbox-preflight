@@ -41,6 +41,16 @@ public class Violation
         return message;
     }
 
+    public String getRule()
+    {
+        return rule;
+    }
+
+    public Integer getPage()
+    {
+        return page;
+    }
+
     public HashMap<String, ?> getContext()
     {
         return context;
