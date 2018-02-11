@@ -24,10 +24,13 @@ import java.util.List;
  */
 public class NoFormsInsidePageArea extends AbstractRule implements XObjectValidator
 {
+    private PDDocument document;
 
     @Override
     protected void doValidate(PDDocument document, List<Violation> violations)
     {
+        this.document = document;
+
         streamEngine.addValidator(this);
     }
 
@@ -55,7 +58,7 @@ public class NoFormsInsidePageArea extends AbstractRule implements XObjectValida
             Violation violation = new Violation(
                 this.getClass().getSimpleName(),
                 "Form elements must be outside of TrimBox and BleedBox.",
-                -1, // FIXME
+                document.getPages().indexOf(page),
                 context
             );
 

@@ -31,6 +31,7 @@ public class MaxInkDensityImage extends AbstractRule implements XObjectValidator
 {
     HashMap<COSName, Float> cache;
     private Integer maxDensity;
+    private PDDocument document;
 
     public MaxInkDensityImage(Integer maxDensity)
     {
@@ -41,6 +42,8 @@ public class MaxInkDensityImage extends AbstractRule implements XObjectValidator
     @Override
     protected void doValidate(PDDocument document, List<Violation> violations)
     {
+        this.document = document;
+
         streamEngine.addValidator(this);
     }
 
@@ -86,7 +89,7 @@ public class MaxInkDensityImage extends AbstractRule implements XObjectValidator
                 Violation violation = new Violation(
                     MaxInkDensityImage.class.getSimpleName(),
                     String.format("Image color density exceeds maximum of %d.", maxDensity),
-                    -1, // FIXME
+                    document.getPages().indexOf(page),
                     context
                 );
 

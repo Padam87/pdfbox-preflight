@@ -29,6 +29,7 @@ public class ColorSpaceImages extends AbstractRule implements XObjectValidator
 {
     private List<COSName> allowedColorSpaces;
     private List<COSName> disallowedColorSpaces;
+    private PDDocument document;
 
     public ColorSpaceImages(List<COSName> allowedColorSpaces)
     {
@@ -46,6 +47,8 @@ public class ColorSpaceImages extends AbstractRule implements XObjectValidator
     @Override
     protected void doValidate(PDDocument document, List<Violation> violations)
     {
+        this.document = document;
+
         streamEngine.addValidator(this);
     }
 
@@ -72,7 +75,7 @@ public class ColorSpaceImages extends AbstractRule implements XObjectValidator
                 Violation violation = new Violation(
                     ColorSpaceImages.class.getSimpleName(),
                     String.format("Invalid image ColorSpace found : %s.", image.getColorSpace().getName()),
-                    -1, //FIXME
+                    document.getPages().indexOf(page),
                     context
                 );
 

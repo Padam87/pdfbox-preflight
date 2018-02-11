@@ -24,6 +24,7 @@ import java.util.List;
 public class ImageMinDpi extends AbstractRule implements XObjectValidator
 {
     private Integer min;
+    private PDDocument document;
 
     public ImageMinDpi(Integer min)
     {
@@ -33,6 +34,8 @@ public class ImageMinDpi extends AbstractRule implements XObjectValidator
     @Override
     protected void doValidate(PDDocument document, List<Violation> violations)
     {
+        this.document = document;
+
         streamEngine.addValidator(this);
     }
 
@@ -62,7 +65,7 @@ public class ImageMinDpi extends AbstractRule implements XObjectValidator
             Violation violation = new Violation(
                 ImageMinDpi.class.getSimpleName(),
                 String.format("Image with low DPI (X: %d, Y: %d)", DpiX, DpiY),
-                -1, //FIXME
+                document.getPages().indexOf(page),
                 context
             );
 
