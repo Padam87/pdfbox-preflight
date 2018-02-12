@@ -39,10 +39,14 @@ public class X1a implements StandardInterface
         allowedColorSpaces.add(COSName.DEVICECMYK);
         allowedColorSpaces.add(COSName.DEVICEGRAY);
         allowedColorSpaces.add(COSName.DEVICEN);
-        allowedColorSpaces.add(COSName.SEPARATION);
+        // The standard would allow it, however most programs don't... this project aims for similar results.
+        // PANTONE colors would require the machine to use another head specially for that color.
+        // Most print shops only allow that for extra price.
+        //allowedColorSpaces.add(COSName.SEPARATION);
 
         rules.add(new ColorSpaceText(allowedColorSpaces));
         rules.add(new ColorSpaceImages(allowedColorSpaces));
+        rules.add(new ColorSpacePage(allowedColorSpaces));
 
         // Fonts must be embedded
         rules.add(new OnlyEmbeddedFonts());
