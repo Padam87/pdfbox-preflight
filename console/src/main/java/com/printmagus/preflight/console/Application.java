@@ -10,13 +10,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.printmagus.preflight.Preflight;
 import com.printmagus.preflight.Violation;
-import com.printmagus.preflight.rule.ImageMinDpi;
-import com.printmagus.preflight.rule.MaxInkDensityImage;
-import com.printmagus.preflight.rule.MaxInkDensityText;
-import com.printmagus.preflight.rule.PageCount;
+import com.printmagus.preflight.rule.*;
 import com.printmagus.preflight.serializer.GsonBuilderFactory;
 import com.printmagus.preflight.serializer.PDImageXObjectSerializer;
 import com.printmagus.preflight.standard.X1a;
+import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.springframework.boot.ApplicationArguments;
@@ -51,6 +49,8 @@ public class Application implements ApplicationRunner
         preflight.addRule(new ImageMinDpi(300));
         preflight.addRule(new MaxInkDensityText(320));
         preflight.addRule(new MaxInkDensityImage(320));
+        preflight.addRule(new BoxSize(COSName.TRIM_BOX, 680, 980));
+        preflight.addRule(new BoxSize(COSName.BLEED_BOX, 686, 986));
 
         List<Violation> violations = preflight.validate(document);
 
