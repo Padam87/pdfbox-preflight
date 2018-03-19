@@ -151,6 +151,15 @@ public class MaxInkDensityText extends AbstractRule
         private void processColor(PDColor color) throws IOException
         {
             Float density = 0f;
+
+            if (color.isPattern()) {
+                return;
+            }
+
+            if (color.getComponents().length != 4) {
+                return;
+            }
+
             for (Float component : color.toCOSArray().toFloatArray()) {
                 density += component * 100;
             }
