@@ -31,11 +31,20 @@ public class MaxInkDensityImage extends AbstractRule implements XObjectValidator
 {
     HashMap<COSName, Float> cache;
     private Integer maxDensity;
+    private Integer maxArea;
     private PDDocument document;
 
     public MaxInkDensityImage(Integer maxDensity)
     {
         this.maxDensity = maxDensity;
+        this.maxArea = Integer.MAX_VALUE;
+        this.cache = new HashMap<COSName, Float>();
+    }
+
+    public MaxInkDensityImage(Integer maxDensity, Integer maxArea)
+    {
+        this.maxDensity = maxDensity;
+        this.maxArea = maxArea;
         this.cache = new HashMap<COSName, Float>();
     }
 
@@ -57,6 +66,11 @@ public class MaxInkDensityImage extends AbstractRule implements XObjectValidator
         }
 
         PDImageXObject image = (PDImageXObject) xobject;
+
+        if (image.getWidth() * image.getHeight() > maxArea) {
+            return violations;
+        }
+
         try {
             Float max = 0f;
 
