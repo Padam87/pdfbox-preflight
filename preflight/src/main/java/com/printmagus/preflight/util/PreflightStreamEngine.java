@@ -6,11 +6,13 @@ import org.apache.pdfbox.contentstream.PDFStreamEngine;
 import org.apache.pdfbox.contentstream.operator.Operator;
 import org.apache.pdfbox.contentstream.operator.state.*;
 import org.apache.pdfbox.cos.COSBase;
+import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject;
 import org.apache.pdfbox.pdmodel.graphics.form.PDTransparencyGroup;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 
 import java.io.IOException;
@@ -27,6 +29,7 @@ public class PreflightStreamEngine extends PDFStreamEngine
 {
     private List<XObjectValidator> xObjectValidators = new ArrayList<>();
     private List<Violation> violations = new ArrayList<>();
+    private Integer maxImageArea = Integer.MAX_VALUE;
 
     public void addValidator(XObjectValidator validator)
     {
@@ -68,6 +71,27 @@ public class PreflightStreamEngine extends PDFStreamEngine
     {
         if (operator.getName().equals("Do")) {
             COSName objectName = (COSName)operands.get(0);
+
+            COSDictionary dict = (COSDictionary) getResources().getCOSObject().getDictionaryObject(COSName.XOBJECT);
+            if (dict != null) {
+                COSBase object = dict.getDictionaryObject(objectName);
+
+                if (object instanceof COSDictionary) {
+                    COSDictionary dict2 = (COSDictionary) object;
+
+                    if (dict2.getCOSName(COSName.SUBTYPE) == COSName.IMAGE) {
+                        Integer width = dict2.getInt(COSName.WIDTH);
+                        Integer height = dict2.getInt(COSName.HEIGHT);
+
+                        Integer area = width * height;
+
+                        if (area > maxImageArea) {
+                            return;
+                        }
+                    }
+                }
+            }
+
             PDXObject xobject = getResources().getXObject(objectName);
             PDPage page = getCurrentPage();
             PDGraphicsState graphicsState = getGraphicsState().clone();
@@ -95,5 +119,10 @@ public class PreflightStreamEngine extends PDFStreamEngine
         } else {
             super.processOperator(operator, operands);
         }
+    }
+
+    public void setMaxImageArea(Integer maxImageArea)
+    {
+        this.maxImageArea = maxImageArea;
     }
 }
