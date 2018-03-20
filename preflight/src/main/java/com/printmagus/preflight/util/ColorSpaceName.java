@@ -1,9 +1,6 @@
 package com.printmagus.preflight.util;
 
-import org.apache.pdfbox.cos.COSArray;
-import org.apache.pdfbox.cos.COSBase;
-import org.apache.pdfbox.cos.COSName;
-import org.apache.pdfbox.cos.COSObject;
+import org.apache.pdfbox.cos.*;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 import java.io.IOException;
@@ -19,6 +16,11 @@ public class ColorSpaceName
     {
         COSBase colorSpace = image.getCOSObject().getDictionaryObject(COSName.COLORSPACE, COSName.CS);
 
+        return get(colorSpace);
+    }
+
+    public static COSName get(COSBase colorSpace) throws IOException
+    {
         if (colorSpace instanceof COSObject) {
             colorSpace = ((COSObject) colorSpace).getObject();
         }

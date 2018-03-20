@@ -1,6 +1,9 @@
 package com.printmagus.preflight.rule;
 
 import com.printmagus.preflight.Violation;
+import com.printmagus.preflight.util.ColorSpaceName;
+import org.apache.pdfbox.cos.COSBase;
+import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -45,14 +48,19 @@ public class ColorSpacePage extends AbstractRule
     protected void doValidate(PDDocument document, List<Violation> violations)
     {
         for (PDPage page: document.getPages()) {
+            COSDictionary resources = (COSDictionary) page.getCOSObject().getDictionaryObject(COSName.RESOURCES);
+            COSDictionary colorSpaces = (COSDictionary) resources.getDictionaryObject(COSName.COLORSPACE);
+
             for (COSName name: page.getResources().getColorSpaceNames()) {
+                COSBase colorSpace = colorSpaces.getDictionaryObject(name);
+
                 try {
-                    PDColorSpace cs = page.getResources().getColorSpace(name);
+                    COSName cs = ColorSpaceName.get(colorSpace);
 
                     if (!this.isValidColorSpace(cs)) {
                         HashMap<String, Object> context = new HashMap<String, Object>();
 
-                        context.put("colorSpace", cs);
+                        context.put("colorSpace", cs.getName());
 
                         Violation violation = new Violation(
                             ColorSpaceText.class.getSimpleName(),
@@ -70,21 +78,15 @@ public class ColorSpacePage extends AbstractRule
         }
     }
 
-    private Boolean isValidColorSpace(PDColorSpace colorSpace)
+    private Boolean isValidColorSpace(COSName colorSpace)
     {
         Boolean valid = allowedColorSpaces.isEmpty();
 
-        if (colorSpace instanceof PDIndexed) {
-            colorSpace = ((PDIndexed)colorSpace).getBaseColorSpace();
-        }
-
-        COSName cosName = COSName.getPDFName(colorSpace.getName());
-
-        if (allowedColorSpaces.contains(cosName)) {
+        if (allowedColorSpaces.contains(colorSpace)) {
             valid = true;
         }
 
-        if (disallowedColorSpaces.contains(cosName)) {
+        if (disallowedColorSpaces.contains(colorSpace)) {
             valid = false;
         }
 
