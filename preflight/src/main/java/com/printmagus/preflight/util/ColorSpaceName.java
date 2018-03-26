@@ -42,7 +42,7 @@ public class ColorSpaceName
 
             // With indexed color spaces we are only interested in the underlying colorspace.
             if (name == COSName.INDEXED) {
-                name = (COSName) array.getObject(1);
+                return get(array.getObject(1));
             }
 
             return name;
