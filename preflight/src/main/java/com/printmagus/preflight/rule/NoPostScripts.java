@@ -33,7 +33,7 @@ public class NoPostScripts extends AbstractRule
 
                         Violation violation = new Violation(
                             this.getClass().getSimpleName(),
-                            "Embedded PostScript prohibited.",
+                            "no_postscripts.embedded_postscript_not_allowed",
                             document.getPages().indexOf(page),
                             context
                         );

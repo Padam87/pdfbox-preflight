@@ -70,11 +70,11 @@ public class ColorSpaceImages extends AbstractRule implements XObjectValidator
                 HashMap<String, Object> context = new HashMap<String, Object>();
 
                 context.put("image", image);
-                context.put("colorSpace", colorSpace);
+                context.put("colorSpace", colorSpace.getName());
 
                 Violation violation = new Violation(
                     ColorSpaceImages.class.getSimpleName(),
-                    String.format("Invalid image ColorSpace found : %s.", image.getColorSpace().getName()),
+                    "color_space_images.invalid.%colorSpace%",
                     document.getPages().indexOf(page),
                     context
                 );

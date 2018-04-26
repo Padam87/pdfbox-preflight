@@ -3,6 +3,7 @@ package com.printmagus.preflight.rule;
 import com.printmagus.preflight.Violation;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -30,10 +31,15 @@ public class InfoKeysExist extends AbstractRule
     {
         for (String key : keys) {
             if (!document.getDocumentInformation().getCOSObject().containsKey(key)) {
+                HashMap<String, Object> context = new HashMap<String, Object>();
+
+                context.put("key", key);
+
                 Violation violation = new Violation(
                     this.getClass().getSimpleName(),
-                    String.format("The key '%s' is required, but not found in the info dict.", key),
-                    null
+                    "info_key_exists.missing.%key%",
+                    null,
+                    context
                 );
 
                 violations.add(violation);

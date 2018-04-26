@@ -25,7 +25,7 @@ public class DocumentVersion extends AbstractRule
 
             Violation violation = new Violation(
                 this.getClass().getSimpleName(),
-                "PDF must be version 1.3 or earlier",
+                "document_version.must_be_1_point_3_or_earlier.%version%",
                 null,
                 context
             );

@@ -21,7 +21,7 @@ public class NoEncryption extends AbstractRule
         if (document.isEncrypted()) {
             Violation violation = new Violation(
                 this.getClass().getSimpleName(),
-                "Encryption prohibited.",
+                "no_encryption.no_encryption_allowed",
                 null
             );
 

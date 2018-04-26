@@ -37,7 +37,7 @@ public class NoAnnotationsInsidePageArea extends AbstractRule
 
                         Violation violation = new Violation(
                             this.getClass().getSimpleName(),
-                            "Annotation must be outside of TrimBox and BleedBox.",
+                            "no_annotations_inside_page_area.annotations_must_be_outside_of_trim_box_and_bleed_box",
                             document.getPages().indexOf(page),
                             context
                         );

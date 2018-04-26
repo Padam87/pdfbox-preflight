@@ -28,12 +28,20 @@ public class PageCount extends AbstractRule
     protected void doValidate(PDDocument document, List<Violation> violations)
     {
         if (document.getNumberOfPages() < min || document.getNumberOfPages() > max) {
-            String message = String.format(
-                "The page count must be between %d and %d. This document has %d pages.",
-                min, max, document.getNumberOfPages()
+            HashMap<String, Object> context = new HashMap<String, Object>();
+
+            context.put("min", min);
+            context.put("max", max);
+            context.put("pages", document.getNumberOfPages());
+
+            Violation violation = new Violation(
+                this.getClass().getSimpleName(),
+                "page_count.must_be_between.%min%.%max%.%pages%",
+                null,
+                context
             );
 
-            violations.add(new Violation(this.getClass().getSimpleName(), message, null));
+            violations.add(violation);
         }
     }
 }

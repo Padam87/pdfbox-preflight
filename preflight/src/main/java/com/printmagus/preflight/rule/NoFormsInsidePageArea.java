@@ -57,7 +57,7 @@ public class NoFormsInsidePageArea extends AbstractRule implements XObjectValida
 
             Violation violation = new Violation(
                 this.getClass().getSimpleName(),
-                "Form elements must be outside of TrimBox and BleedBox.",
+                "no_forms_inside_page_area.forms_must_be_outside_of_trim_box_and_bleed_box",
                 document.getPages().indexOf(page),
                 context
             );

@@ -64,7 +64,7 @@ public class ImageMinDpi extends AbstractRule implements XObjectValidator
 
             Violation violation = new Violation(
                 ImageMinDpi.class.getSimpleName(),
-                String.format("Image with low DPI (X: %d, Y: %d)", DpiX, DpiY),
+                "image_min_dpi.too_low.%dpiX%.%dpiY%",
                 document.getPages().indexOf(page),
                 context
             );

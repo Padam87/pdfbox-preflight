@@ -49,7 +49,7 @@ public class MaxInkDensityText extends AbstractRule
             violations.add(
                 new Violation(
                     this.getClass().getSimpleName(),
-                    String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
+                    "max_ink_density_text.exception",
                     null
                 )
             );
@@ -171,11 +171,12 @@ public class MaxInkDensityText extends AbstractRule
 
                 context.put("density", density);
                 context.put("color", color);
+                context.put("limit", maxDensity);
                 context.put("text", currentText);
 
                 Violation violation = new Violation(
                     MaxInkDensityText.class.getSimpleName(),
-                    message,
+                    "max_ink_density_text.exceeds.%limit%.%density%",
                     document.getPages().indexOf(getCurrentPage()),
                     context
                 );

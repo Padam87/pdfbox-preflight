@@ -25,7 +25,7 @@ public class NoTransferCurves extends AbstractRule
                 if (extendedGraphicsState.getTransfer() != null || extendedGraphicsState.getTransfer2() != null) {
                     Violation violation = new Violation(
                         this.getClass().getSimpleName(),
-                        "Transfer curves prohibited",
+                        "no_transfer_curves.transfer_curves_not_allowed",
                         null
                     );
 

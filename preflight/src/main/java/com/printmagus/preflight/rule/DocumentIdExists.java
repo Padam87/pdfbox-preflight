@@ -25,7 +25,7 @@ public class DocumentIdExists extends AbstractRule
         if (!document.getDocument().getTrailer().containsKey(COSName.ID)) {
             Violation violation = new Violation(
                 this.getClass().getSimpleName(),
-                "Document ID must be present in PDF trailer.",
+                "document_id_exists.missing",
                 null
             );
 

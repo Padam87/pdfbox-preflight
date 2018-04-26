@@ -51,7 +51,7 @@ public class OutputIntent extends AbstractRule
             // (1)
             Violation violation = new Violation(
                 this.getClass().getSimpleName(),
-                "OutputIntent must be present.",
+                "output_intent.must_be_present",
                 null
             );
 
@@ -72,7 +72,7 @@ public class OutputIntent extends AbstractRule
                     // (3)
                     Violation violation = new Violation(
                         this.getClass().getSimpleName(),
-                        "OutputConditionIdentifier required in PDF/X OutputIntent.",
+                        "output_intent.output_condition_identifier_required",
                         null
                     );
 
@@ -83,7 +83,7 @@ public class OutputIntent extends AbstractRule
                     // (4)
                     Violation violation = new Violation(
                         this.getClass().getSimpleName(),
-                        "Destination profile must be embedded or Registry Name must be filled out.",
+                        "output_intent.destination_profile_must_be_embedded",
                         null
                     );
 
@@ -94,7 +94,7 @@ public class OutputIntent extends AbstractRule
                     // (5)
                     Violation violation = new Violation(
                         this.getClass().getSimpleName(),
-                        "OutputIntent Info key must be present.",
+                        "output_intent.info_key_must_be_present",
                         null
                     );
 
@@ -104,9 +104,10 @@ public class OutputIntent extends AbstractRule
                 COSStream outputProfile = (COSStream) dictionary.getDictionaryObject(COSName.DEST_OUTPUT_PROFILE);
 
                 if (!outputProfile.toTextString().substring(12, 16).equals("prtr")) {
+                    // (6)
                     Violation violation = new Violation(
                         this.getClass().getSimpleName(),
-                        "Destination profile must be ICC output profile (type 'prtr').",
+                        "output_intent.destination_profile_must_be_icc",
                         null
                     );
 
@@ -123,7 +124,7 @@ public class OutputIntent extends AbstractRule
             // (2)
             Violation violation = new Violation(
                 this.getClass().getSimpleName(),
-                "OutputIntent must contain exactly one PDF/X entry.",
+                "output_intent.must_contain_exactly_one_pdfx_entry",
                 null,
                 context
             );

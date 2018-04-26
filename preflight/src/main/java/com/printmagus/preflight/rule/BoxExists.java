@@ -28,7 +28,7 @@ public class BoxExists extends AbstractRule
             if (trimBox == null && artBox == null) {
                 Violation violation = new Violation(
                     this.getClass().getSimpleName(),
-                    "Either TrimBox or ArtBox must be present.",
+                    "box_exists.trim_box_or_art_box_must_be_present",
                     document.getPages().indexOf(page)
                 );
 
@@ -36,7 +36,7 @@ public class BoxExists extends AbstractRule
             } else if (trimBox != null && artBox != null) {
                 Violation violation = new Violation(
                     this.getClass().getSimpleName(),
-                    "Either TrimBox or ArtBox must be present, but not both.",
+                    "box_exists.trim_box_or_art_box_must_be_present_but_not_both",
                     document.getPages().indexOf(page)
                 );
 

@@ -100,7 +100,7 @@ public class NoActions extends AbstractRule
 
         Violation violation = new Violation(
             this.getClass().getSimpleName(),
-            "Actions and JavaScript prohibited.",
+            "no_actions.no_actions_or_javascript_allowed",
             page != null ? document.getPages().indexOf(page) : null,
             context
         );

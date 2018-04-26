@@ -33,7 +33,7 @@ public class OnlyEmbeddedFonts extends AbstractRule
 
                         Violation violation = new Violation(
                             this.getClass().getSimpleName(),
-                            "Fonts must be embedded.",
+                            "only_embedded_fonts.fonts_must_be_embedded",
                             document.getPages().indexOf(page),
                             context
                         );

@@ -16,6 +16,7 @@ import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 import org.apache.pdfbox.util.Matrix;
 import org.apache.pdfbox.util.Vector;
 
+import java.awt.color.ColorSpace;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,9 +61,8 @@ public class ColorSpaceText extends AbstractRule
         } catch (IOException e) {
             violations.add(
                 new Violation(
-                    this.getClass()
-                        .getSimpleName(),
-                    String.format("An exception occurred during the parse process. Message: %s", e.getMessage()),
+                    this.getClass().getSimpleName(),
+                    "color_space_text.exception",
                     null
                 )
             );
@@ -152,16 +152,28 @@ public class ColorSpaceText extends AbstractRule
 
         private void processColorSpaceText()
         {
-            if (!this.isValidColorSpace(currentStrokingColorSpace) || !this.isValidColorSpace(currentNonStrokingColorSpace)) {
+            Boolean valid = true;
+            PDColorSpace cs = null;
+
+            if (!this.isValidColorSpace(currentStrokingColorSpace)) {
+                valid = false;
+                cs = currentStrokingColorSpace;
+            }
+
+            if (!this.isValidColorSpace(currentNonStrokingColorSpace)) {
+                valid = false;
+                cs = currentNonStrokingColorSpace;
+            }
+
+            if (!valid) {
                 HashMap<String, Object> context = new HashMap<String, Object>();
 
                 context.put("text", currentText);
-                context.put("colorSpaceStroking", currentStrokingColorSpace);
-                context.put("colorSpaceNonStroking", currentNonStrokingColorSpace);
+                context.put("colorSpace", cs.getName());
 
                 Violation violation = new Violation(
                     ColorSpaceText.class.getSimpleName(),
-                    String.format("Invalid image ColorSpace found : %s.", currentStrokingColorSpace),
+                    "color_space_text.invalid.%colorSpace%",
                     document.getPages().indexOf(getCurrentPage()),
                     context
                 );

@@ -45,12 +45,13 @@ public class BoxSize extends AbstractRule
             if (getBoxWidth(page) != round(width) || getBoxHeight(page) != round(height)) {
                 HashMap<String, Object> context = new HashMap<String, Object>();
 
+                context.put("name", box.getName());
                 context.put("width", getBoxWidth(page));
                 context.put("height", getBoxHeight(page));
 
                 Violation violation = new Violation(
                     BoxSize.class.getSimpleName(),
-                    String.format("The %s must be exactly %f x %f mm-s.", box.getName(), round(width), round(height)),
+                    "box_size.must_be_exactly.%name%.%width%.%height%",
                     document.getPages().indexOf(page),
                     context
                 );

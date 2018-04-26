@@ -64,7 +64,7 @@ public class ColorSpacePage extends AbstractRule
 
                         Violation violation = new Violation(
                             ColorSpaceText.class.getSimpleName(),
-                            String.format("Invalid page ColorSpace found : %s.", cs.getName()),
+                            "color_space_page.invalid.%colorSpace%",
                             document.getPages().indexOf(page),
                             context
                         );

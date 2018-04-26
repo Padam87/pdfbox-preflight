@@ -22,7 +22,7 @@ public class NoSeparation extends AbstractRule
             if (page.getCOSObject().containsKey("SeparationInfo")) {
                 Violation violation = new Violation(
                     this.getClass().getSimpleName(),
-                    "Page must not be separated.",
+                    "no_separation.page_must_not_be_separated",
                     document.getPages().indexOf(page)
                 );
 

@@ -99,10 +99,11 @@ public class MaxInkDensityImage extends AbstractRule implements XObjectValidator
 
                 context.put("density", max);
                 context.put("image", image);
+                context.put("limit", maxDensity);
 
                 Violation violation = new Violation(
                     MaxInkDensityImage.class.getSimpleName(),
-                    String.format("Image color density exceeds maximum of %d.", maxDensity),
+                    "max_ink_density_image.exceeds.%limit%.%density%",
                     document.getPages().indexOf(page),
                     context
                 );

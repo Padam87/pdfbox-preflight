@@ -42,11 +42,11 @@ public class NoTransparency extends AbstractRule
                     if (dictionary.containsKey(COSName.TYPE)
                         && dictionary.getDictionaryObject(COSName.TYPE) == COSName.GROUP
                     ) {
-                        message = "Transparency not allowed (transparency group)";
+                        message = "no_transparency.transparency_not_allowed_transparency_group";
                     } else if (dictionary.containsKey(COSName.CS)) {
-                        message = "Transparency not allowed (color space)";
+                        message = "no_transparency.transparency_not_allowed_color_space";
                     } else {
-                        message = "Transparency not allowed (unknown)";
+                        message = "no_transparency.transparency_not_allowed_unknown";
                     }
 
                     Violation violation = new Violation(

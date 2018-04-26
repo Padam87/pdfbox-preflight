@@ -53,7 +53,7 @@ public class InfoKeysMatch extends AbstractRule
 
                     Violation violation = new Violation(
                         this.getClass().getSimpleName(),
-                        String.format("Invalid info dict entry: %s.", entry.getKey()),
+                        "info_key_match.mismatch.%key%.%pattern%.%value%",
                         null,
                         context
                     );
@@ -61,10 +61,15 @@ public class InfoKeysMatch extends AbstractRule
                     violations.add(violation);
                 }
             } else {
+                HashMap<String, Object> context = new HashMap<String, Object>();
+
+                context.put("key", entry.getKey());
+
                 Violation violation = new Violation(
                     this.getClass().getSimpleName(),
-                    String.format("The key '%s' is required, but not found in the info dict.", entry.getKey()),
-                    null
+                    "info_key_match.missing.%key%",
+                    null,
+                    context
                 );
 
                 violations.add(violation);

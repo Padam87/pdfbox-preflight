@@ -24,7 +24,7 @@ public class BoxNesting extends AbstractRule
             if (!boxContainsBox(page.getMediaBox(), page.getTrimBox())) {
                 Violation violation = new Violation(
                     BoxNesting.class.getSimpleName(),
-                    "The TrimBox must not extend beyond the MediaBox.",
+                    "box_nesting.trim_box_must_not_extend_beyond_media_box",
                     document.getPages().indexOf(page)
                 );
 
@@ -34,7 +34,7 @@ public class BoxNesting extends AbstractRule
             if (!boxContainsBox(page.getBleedBox(), page.getTrimBox())) {
                 Violation violation = new Violation(
                     BoxNesting.class.getSimpleName(),
-                    "The TrimBox must not extend beyond the BleedBox.",
+                    "box_nesting.trim_box_must_not_extend_beyond_bleed_box",
                     document.getPages().indexOf(page)
                 );
 
@@ -44,7 +44,7 @@ public class BoxNesting extends AbstractRule
             if (!boxContainsBox(page.getMediaBox(), page.getBleedBox())) {
                 Violation violation = new Violation(
                     BoxNesting.class.getSimpleName(),
-                    "The BleedBox must not extend beyond the MediaBox.",
+                    "box_nesting.bleed_box_must_not_extend_beyond_media_box",
                     document.getPages().indexOf(page)
                 );
 
