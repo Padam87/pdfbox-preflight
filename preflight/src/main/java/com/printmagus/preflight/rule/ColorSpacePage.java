@@ -49,6 +49,11 @@ public class ColorSpacePage extends AbstractRule
     {
         for (PDPage page: document.getPages()) {
             COSDictionary resources = (COSDictionary) page.getCOSObject().getDictionaryObject(COSName.RESOURCES);
+
+            if (resources == null || !resources.containsKey(COSName.COLORSPACE)) {
+                continue;
+            }
+
             COSDictionary colorSpaces = (COSDictionary) resources.getDictionaryObject(COSName.COLORSPACE);
 
             for (COSName name: page.getResources().getColorSpaceNames()) {
